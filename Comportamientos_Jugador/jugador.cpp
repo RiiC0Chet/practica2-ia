@@ -32,7 +32,15 @@ Action ComportamientoJugador::think(Sensores sensores)
 		objetivos.push_back(aux);
 	}
 
-	bool hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+	if(!hay_plan)
+		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+
+	if(hay_plan && plan.size() > 0)
+	{
+		accion = plan.front();
+		plan.pop_front();
+	}
+
 
 	return accion;
 }
@@ -286,7 +294,7 @@ void ComportamientoJugador::PintaPlan(list<Action> plan)
 		}
 		else if (*it == actSEMITURN_L)
 		{
-			cout << "I ";
+			cout << "i "; // giro pequenio de 45grados
 		}
 		else
 		{
