@@ -270,6 +270,13 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 	return false;
 }
 
+// Implementación de la busqueda en anchura.
+// Entran los puntos origen y destino y devuelve la
+// secuencia de acciones en plan, una lista de acciones.
+bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan)
+{
+}
+
 // Sacar por la consola la secuencia del plan obtenido
 void ComportamientoJugador::PintaPlan(list<Action> plan)
 {
