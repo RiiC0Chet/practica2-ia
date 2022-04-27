@@ -388,14 +388,14 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 	Abiertos.push(current);
 
-	while (!Abiertos.empty() and (current.st.fila != destino.fila or current.st.columna != destino.columna))
+	while (!Abiertos.empty() and (current->actual->st.fila != destino.fila or current->actual->st.columna != destino.columna))
 	{
 
 		Abiertos.pop();
-		Cerrados.insert(current.st);
+		Cerrados.insert(current->actual->st);
 
 		// Generar descendiente de girar a la derecha 90 grados
-		nodo hijoTurnR = current;
+		nodoA* hijoTurnR = current;
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
 		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
 		{
