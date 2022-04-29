@@ -20,9 +20,9 @@ struct nodo
 // struct de los nodos A*
 struct nodoA
 {
-  nodo* actual;
+  nodo actual;
   int g,h;
-  int f = g+h; // calculo de la heuristica
+  int f; // calculo de la heuristica
 };
 
 
@@ -33,10 +33,10 @@ class mycomparison
 public:
   inline mycomparison(const bool& revparam=false)
     {reverse=revparam;}
-  inline bool operator() (const nodoA* lhs, const nodoA* rhs) const
+  inline bool operator() (const nodoA& lhs, const nodoA& rhs) const
   {
-    if (reverse) return (lhs->f > rhs->f);
-    else return (lhs->f < rhs->f);
+    if (reverse) return (lhs.f > rhs.f);
+    else return (lhs.f < rhs.f);
   }
 };
 
@@ -71,6 +71,13 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan);
+
+    // distancia manhattan teniendo en cuenta las diagonales
+    inline int ManhattanDistance(nodoA& uno, nodoA& dos)
+    {
+      return abs(uno.actual.st.fila-dos.actual.st.fila);
+    }
+
 
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);

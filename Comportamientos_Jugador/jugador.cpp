@@ -340,6 +340,13 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 			{
 				hijoForward.secuencia.push_back(actFORWARD);
 				Abiertos.push(hijoForward);
+
+				if (hijoForward.st.fila == destino.fila && hijoForward.st.columna == destino.columna)
+				{
+					//cout<<"SALIMOS AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<endl;
+					current = hijoForward;
+					break;
+				}
 			}
 		}
 
@@ -370,6 +377,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 	return false;
 }
 
+
 // Implementación de la busqueda A*
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
@@ -380,23 +388,23 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 	plan.clear();
 	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
 	// using mycomparison:
-  	std::priority_queue<nodoA*,std::vector<nodoA*>,mycomparison> Abiertos;				  // Lista de Abiertos
+  	std::priority_queue<nodoA,std::vector<nodoA>,mycomparison> Abiertos;				  // Lista de Abiertos
 
-	nodoA* current = new nodoA;
-	current->actual->st = origen;
-	current->actual->secuencia.empty();
+	nodoA current;
+	current.actual.st = origen;
+	current.actual.secuencia.empty();
 
 	Abiertos.push(current);
 
-	while (!Abiertos.empty() and (current->actual->st.fila != destino.fila or current->actual->st.columna != destino.columna))
+	while (!Abiertos.empty() and (current.actual.st.fila != destino.fila or current.actual.st.columna != destino.columna))
 	{
 
 		Abiertos.pop();
-		Cerrados.insert(current->actual->st);
+		Cerrados.insert(current.actual.st);
 
 		// Generar descendiente de girar a la derecha 90 grados
-		nodoA* hijoTurnR = current;
-		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
+		nodoA hijoTurnR = current;
+		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
 		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
 		{
 			hijoTurnR.secuencia.push_back(actTURN_R);
@@ -404,7 +412,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		}
 
 		// Generar descendiente de girar a la derecha 45 grados
-		nodo hijoSEMITurnR = current;
+		nodoA hijoSEMITurnR = current;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
 		if (Cerrados.find(hijoSEMITurnR.st) == Cerrados.end())
 		{
@@ -413,7 +421,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		}
 
 		// Generar descendiente de girar a la izquierda 90 grados
-		nodo hijoTurnL = current;
+		nodoA hijoTurnL = current;
 		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
 		if (Cerrados.find(hijoTurnL.st) == Cerrados.end())
 		{
@@ -422,7 +430,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		}
 
 		// Generar descendiente de girar a la izquierda 45 grados
-		nodo hijoSEMITurnL = current;
+		nodoA hijoSEMITurnL = current;
 		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
 		if (Cerrados.find(hijoSEMITurnL.st) == Cerrados.end())
 		{
@@ -431,7 +439,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		}
 
 		// Generar descendiente de avanzar
-		nodo hijoForward = current;
+		nodoA hijoForward = current;
 		if (!HayObstaculoDelante(hijoForward.st))
 		{
 			if (Cerrados.find(hijoForward.st) == Cerrados.end())
@@ -444,7 +452,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
-			current = Abiertos.front();
+			current = Abiertos.top();
 		}
 	}
 
@@ -467,6 +475,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 	return false;
 }
+
 
 // Sacar por la consola la secuencia del plan obtenido
 void ComportamientoJugador::PintaPlan(list<Action> plan)
