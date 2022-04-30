@@ -72,12 +72,17 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan);
 
-    // distancia manhattan teniendo en cuenta las diagonales
-    inline int ManhattanDistance(nodoA& uno, nodoA& dos)
+    // distancia Chebyshev teniendo en cuenta las diagonales
+    inline int ChebyshevDistance(nodoA& uno, nodoA& dos)
     {
-      return abs(uno.actual.st.fila-dos.actual.st.fila);
+      return abs(uno.actual.st.fila-dos.actual.st.fila) > abs(uno.actual.st.columna-dos.actual.st.columna) ? abs(uno.actual.st.fila-dos.actual.st.fila) : abs(uno.actual.st.columna-dos.actual.st.columna);
     }
 
+    // sobrecarga distancia Chebyshev teniendo en cuenta las diagonales
+    inline int ChebyshevDistance(nodoA& uno, estado& dos)
+    {
+      return abs(uno.actual.st.fila-dos.fila) > abs(uno.actual.st.columna-dos.columna) ? abs(uno.actual.st.fila-dos.fila) : abs(uno.actual.st.columna-dos.columna);
+    }
 
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);

@@ -381,7 +381,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 // Implementación de la busqueda A*
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
-bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan)
+bool ComportamientoJugador::pathFinding_AStart(const estado &origen, const estado &destino, list<Action> &plan)
 {
 	// Borro la lista
 	cout << "Calculando plan\n";
@@ -408,6 +408,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
 		{
 			hijoTurnR.secuencia.push_back(actTURN_R);
+
 			Abiertos.push(hijoTurnR);
 		}
 
