@@ -199,6 +199,18 @@ struct ComparaEstados
 	}
 };
 
+struct ComparaNodosA
+{
+	bool operator()(const nodoA &a, const nodoA &n) const
+	{
+		if ((a.actual.st.fila > n.actual.st.fila) or (a.actual.st.fila == n.actual.st.fila and a.actual.st.columna > n.actual.st.columna) or
+			(a.actual.st.fila == n.actual.st.fila and a.actual.st.columna == n.actual.st.columna and a.actual.st.orientacion > n.actual.st.orientacion))
+			return true;
+		else
+			return false;
+	}
+};
+
 // Implementación de la busqueda en profundidad.
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
@@ -410,7 +422,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
-	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
+	set<nodoA, ComparaNodosA> Cerrados; // Lista de Cerrados
 	// using mycomparison:
   	std::priority_queue<nodoA,std::vector<nodoA>,mycomparison> Abiertos;				  // Lista de Abiertos
 
@@ -432,9 +444,9 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	{
 
 		Abiertos.pop();
-		Cerrados.insert(current.actual.st);
+		Cerrados.insert(current);
 
-		switch (mapaResultado[actual.fila][actual.columna])
+		switch (mapaResultado[current.actual.st.fila][current.actual.st.columna])
 				{
 					case 'A':
 						if(bikini)
@@ -448,7 +460,10 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 							costeF = 200;
 							costeTURN = 500;
 							costeSEMITURN = 300;
-						}							
+						}		
+						cout<<endl;
+						cout<<"A"<<endl;	
+						cout<<endl;				
 					break;
 
 					case 'B':
@@ -464,18 +479,27 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 							costeTURN = 3;
 							costeSEMITURN = 2;
 						}	
+						cout<<endl;
+						cout<<"B"<<endl;	
+						cout<<endl;	
 					break;
 
 					case 'T':
 							costeF = 2;
 							costeTURN = 2;
 							costeSEMITURN = 1;
+							//cout<<endl;
+							cout<<"T";//<<endl;	
+							//cout<<endl;	
 					break;
 					
 					default:
 							costeF = 1;
 							costeTURN = 1;
 							costeSEMITURN = 1;
+							cout<<endl;
+							cout<<"DEFAULT"<<endl;	
+							cout<<endl;	
 					break;
 				}
 
@@ -485,7 +509,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
 		if (!HayObstaculoDelante(hijoTurnR.actual.st))
 		{
-			if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
+			if (Cerrados.find(hijoTurnR) == Cerrados.end())
 			{
 				hijoTurnR.actual.secuencia.push_back(actTURN_R);
 				hijoTurnR.actual.secuencia.push_back(actFORWARD);
@@ -496,6 +520,26 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 				Abiertos.push(hijoTurnR);
 			}
+			else
+			{
+				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnR)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN + costeF)<<endl;
+				if( (Cerrados.find(hijoTurnR)->g) > (current.g + costeTURN + costeF) )
+				{
+					//Cerrados.find(hijoTurnR)->g = current.g + costeTURN + costeF;
+					//Cerrados.find(hijoTurnR)->f = Cerrados.find(hijoTurnR)->h + Cerrados.find(hijoTurnR)->g;
+					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					Cerrados.erase(hijoTurnR);
+
+					hijoTurnR.actual.secuencia.push_back(actTURN_R);
+					hijoTurnR.actual.secuencia.push_back(actFORWARD);
+
+					hijoTurnR.g= current.g + costeTURN + costeF;
+					hijoTurnR.h= ChebyshevDistance(hijoTurnR,destino);
+					hijoTurnR.f= hijoTurnR.g + hijoTurnR.h;
+
+					Abiertos.push(hijoTurnR);
+				}
+			}
 		}
 		
 
@@ -504,7 +548,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
 		if (!HayObstaculoDelante(hijoSEMITurnR.actual.st))
 		{
-			if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
+			if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
 			{
 				hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
 				hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
@@ -515,6 +559,24 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 				Abiertos.push(hijoSEMITurnR);
 			}
+			else
+			{
+				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnR)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN + costeF)<<endl;
+				if( (Cerrados.find(hijoSEMITurnR)->g) > (current.g + costeSEMITURN + costeF) )
+				{
+					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					Cerrados.erase(hijoSEMITurnR);
+
+					hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+					hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
+
+					hijoSEMITurnR.g= current.g + costeSEMITURN + costeF;
+					hijoSEMITurnR.h= ChebyshevDistance(hijoSEMITurnR,destino);
+					hijoSEMITurnR.f= hijoSEMITurnR.g + hijoSEMITurnR.h;
+
+					Abiertos.push(hijoSEMITurnR);
+				}
+			}
 		}
 		
 
@@ -523,7 +585,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
 		if (!HayObstaculoDelante(hijoTurnL.actual.st))
 		{
-			if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
+			if (Cerrados.find(hijoTurnL) == Cerrados.end())
 			{
 				hijoTurnL.actual.secuencia.push_back(actTURN_L);
 				hijoTurnL.actual.secuencia.push_back(actFORWARD);
@@ -534,6 +596,24 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 				Abiertos.push(hijoTurnL);
 			}
+			else
+			{
+				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnL)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN + costeF)<<endl;
+				if( (Cerrados.find(hijoTurnL)->g) > (current.g + costeTURN + costeF) )
+				{
+					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					Cerrados.erase(hijoTurnL);
+
+					hijoTurnL.actual.secuencia.push_back(actTURN_L);
+					hijoTurnL.actual.secuencia.push_back(actFORWARD);
+
+					hijoTurnL.g= current.g + costeTURN + costeF;
+					hijoTurnL.h= ChebyshevDistance(hijoTurnL,destino);
+					hijoTurnL.f= hijoTurnL.g + hijoTurnL.h;
+
+					Abiertos.push(hijoTurnL);
+				}
+			}
 		}
 		
 
@@ -542,7 +622,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
 		if (!HayObstaculoDelante(hijoSEMITurnL.actual.st))
 		{
-			if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
+			if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
 			{
 				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
 				hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
@@ -553,6 +633,24 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 				Abiertos.push(hijoSEMITurnL);
 			}
+			else
+			{
+				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnL)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN + costeF)<<endl;
+				if( (Cerrados.find(hijoSEMITurnL)->g) > (current.g + costeSEMITURN + costeF) )
+				{
+					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					Cerrados.erase(hijoSEMITurnL);
+
+					hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+					hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
+
+					hijoSEMITurnL.g= current.g + costeSEMITURN + costeF;
+					hijoSEMITurnL.h= ChebyshevDistance(hijoSEMITurnL,destino);
+					hijoSEMITurnL.f= hijoSEMITurnL.g + hijoSEMITurnL.h;
+
+					Abiertos.push(hijoSEMITurnL);
+				}
+			}
 		}
 		
 
@@ -560,7 +658,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		nodoA hijoForward = current;
 		if (!HayObstaculoDelante(hijoForward.actual.st))
 		{
-			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
+			if (Cerrados.find(hijoForward) == Cerrados.end())
 			{
 				hijoForward.actual.secuencia.push_back(actFORWARD);
 
@@ -570,12 +668,30 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 				Abiertos.push(hijoForward);
 			}
+			else
+			{
+				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoForward)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeF)<<endl;
+				if( (Cerrados.find(hijoForward)->g) > (current.g + costeF) )
+				{
+					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					Cerrados.erase(hijoForward);
+
+					hijoForward.actual.secuencia.push_back(actFORWARD);
+
+					hijoForward.g= current.g + costeF;
+					hijoForward.h= ChebyshevDistance(hijoForward,destino);
+					hijoForward.f= hijoForward.g + hijoForward.h;
+
+					Abiertos.push(hijoForward);
+				}
+			}
 		}
 
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
 			current = Abiertos.top();
+			//cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
 		}
 	}
 
