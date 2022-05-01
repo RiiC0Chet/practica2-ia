@@ -665,7 +665,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			}
 		}
 
-		// Generar descendiente de girar a la derecha 90 grados
+		// Generar descendiente de girar detras 180 grados
 		nodoA hijoBack = current;
 		hijoBack.actual.st.orientacion = (hijoBack.actual.st.orientacion + 4) % 8;
 		if (!HayObstaculoDelante(hijoBack.actual.st))
@@ -702,12 +702,84 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		}
 
 
+		// Generar descendiente de girar detras a la derecha 135 grados
+		nodoA hijoBackSemiR = current;
+		hijoBackSemiR.actual.st.orientacion = (hijoBackSemiR.actual.st.orientacion + 3) % 8;
+		if (!HayObstaculoDelante(hijoBackSemiR.actual.st))
+		{
+			if (Cerrados.find(hijoBackSemiR) == Cerrados.end())
+			{
+				hijoBackSemiR.actual.secuencia.push_back(actTURN_R);
+				hijoBackSemiR.actual.secuencia.push_back(actSEMITURN_R);
+				hijoBackSemiR.actual.secuencia.push_back(actFORWARD);
+
+				hijoBackSemiR.g= current.g + costeTURN + costeSEMITURN +costeF;
+				hijoBackSemiR.h= ChebyshevDistance(hijoBackSemiR,destino);
+				hijoBackSemiR.f= hijoBackSemiR.g + hijoBackSemiR.h;
+
+				Abiertos.push(hijoBackSemiR);
+			}
+			else
+			{
+				if( (Cerrados.find(hijoBackSemiR)->g) > (current.g + costeTURN + costeSEMITURN +costeF) )
+				{
+					Cerrados.erase(hijoBackSemiR);
+
+					hijoBackSemiR.actual.secuencia.push_back(actTURN_R);
+					hijoBackSemiR.actual.secuencia.push_back(actSEMITURN_R);
+					hijoBackSemiR.actual.secuencia.push_back(actFORWARD);
+
+					hijoBackSemiR.g= current.g + costeTURN + costeSEMITURN +costeF;
+					hijoBackSemiR.h= ChebyshevDistance(hijoBackSemiR,destino);
+					hijoBackSemiR.f= hijoBackSemiR.g + hijoBackSemiR.h;
+
+					Abiertos.push(hijoBackSemiR);
+				}
+			}
+		}
+
+
+		// Generar descendiente de girar detras a la izquierda 225 grados
+		nodoA hijoBackSemiL = current;
+		hijoBackSemiL.actual.st.orientacion = (hijoBackSemiL.actual.st.orientacion + 3) % 8;
+		if (!HayObstaculoDelante(hijoBackSemiL.actual.st))
+		{
+			if (Cerrados.find(hijoBackSemiL) == Cerrados.end())
+			{
+				hijoBackSemiL.actual.secuencia.push_back(actTURN_L);
+				hijoBackSemiL.actual.secuencia.push_back(actSEMITURN_L);
+				hijoBackSemiL.actual.secuencia.push_back(actFORWARD);
+
+				hijoBackSemiL.g= current.g + costeTURN + costeSEMITURN +costeF;
+				hijoBackSemiL.h= ChebyshevDistance(hijoBackSemiL,destino);
+				hijoBackSemiL.f= hijoBackSemiL.g + hijoBackSemiL.h;
+
+				Abiertos.push(hijoBackSemiL);
+			}
+			else
+			{
+				if( (Cerrados.find(hijoBackSemiL)->g) > (current.g + costeTURN + costeSEMITURN +costeF) )
+				{
+					Cerrados.erase(hijoBackSemiL);
+
+					hijoBackSemiL.actual.secuencia.push_back(actTURN_L);
+					hijoBackSemiL.actual.secuencia.push_back(actSEMITURN_L);
+					hijoBackSemiL.actual.secuencia.push_back(actFORWARD);
+
+					hijoBackSemiL.g= current.g + costeTURN + costeSEMITURN +costeF;
+					hijoBackSemiL.h= ChebyshevDistance(hijoBackSemiL,destino);
+					hijoBackSemiL.f= hijoBackSemiL.g + hijoBackSemiL.h;
+
+					Abiertos.push(hijoBackSemiL);
+				}
+			}
+		}
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
 			current = Abiertos.top();
 			
-			/*
+			
 			// comprobamos que estemos cayendo en unas zapatillas o bikini
 			if(mapaResultado[current.actual.st.fila][current.actual.st.columna] == 'K')
 			{
@@ -729,7 +801,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				else	
 					zapatillas = true;
 			}
-			*/
+			
 			//cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
 		}
 	}
