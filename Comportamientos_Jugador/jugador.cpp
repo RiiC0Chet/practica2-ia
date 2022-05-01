@@ -17,28 +17,6 @@ Action ComportamientoJugador::think(Sensores sensores)
 	actual.fila = sensores.posF;
 	actual.columna = sensores.posC;
 	actual.orientacion = sensores.sentido;
-	
-	// comprobamos que estemos cayendo en unas zapatillas o bikini
-	if(sensores.terreno[0] == 'K')
-	{
-		if(zapatillas)
-		{
-			zapatillas = false;
-			bikini = true;
-		}
-		else	
-			bikini = true;
-	}
-	else if(sensores.terreno[0] == 'D')
-	{
-		if(bikini)
-		{
-			bikini = false;
-			zapatillas = true;
-		}
-		else	
-			zapatillas = true;
-	}
 
 	cout << "Fila: " << actual.fila << endl;
 	cout << "Col : " << actual.columna << endl;
@@ -687,10 +665,71 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			}
 		}
 
+		// Generar descendiente de girar a la derecha 90 grados
+		nodoA hijoBack = current;
+		hijoBack.actual.st.orientacion = (hijoBack.actual.st.orientacion + 4) % 8;
+		if (!HayObstaculoDelante(hijoBack.actual.st))
+		{
+			if (Cerrados.find(hijoBack) == Cerrados.end())
+			{
+				hijoBack.actual.secuencia.push_back(actTURN_R);
+				hijoBack.actual.secuencia.push_back(actTURN_R);
+				hijoBack.actual.secuencia.push_back(actFORWARD);
+
+				hijoBack.g= current.g + costeTURN + costeTURN +costeF;
+				hijoBack.h= ChebyshevDistance(hijoBack,destino);
+				hijoBack.f= hijoBack.g + hijoBack.h;
+
+				Abiertos.push(hijoBack);
+			}
+			else
+			{
+				if( (Cerrados.find(hijoBack)->g) > (current.g + costeTURN + costeTURN+  costeF) )
+				{
+					Cerrados.erase(hijoBack);
+
+					hijoBack.actual.secuencia.push_back(actTURN_R);
+					hijoBack.actual.secuencia.push_back(actTURN_R);
+					hijoBack.actual.secuencia.push_back(actFORWARD);
+
+					hijoBack.g= current.g + costeTURN + costeTURN+ costeF;
+					hijoBack.h= ChebyshevDistance(hijoBack,destino);
+					hijoBack.f= hijoBack.g + hijoBack.h;
+
+					Abiertos.push(hijoBack);
+				}
+			}
+		}
+
+
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
 			current = Abiertos.top();
+			
+			/*
+			// comprobamos que estemos cayendo en unas zapatillas o bikini
+			if(mapaResultado[current.actual.st.fila][current.actual.st.columna] == 'K')
+			{
+				if(zapatillas)
+				{
+					zapatillas = false;
+					bikini = true;
+				}
+				else	
+					bikini = true;
+			}
+			else if(mapaResultado[current.actual.st.fila][current.actual.st.columna] == 'D')
+			{
+				if(bikini)
+				{
+					bikini = false;
+					zapatillas = true;
+				}
+				else	
+					zapatillas = true;
+			}
+			*/
 			//cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
 		}
 	}
