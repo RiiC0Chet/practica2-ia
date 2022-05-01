@@ -31,9 +31,9 @@ struct nodoA
 // clase de ordenacion para la cola de prioridad de A*
 class mycomparison
 {
-  bool reverse; // falso ordena de menor a mayor
+  bool reverse; // true ordena de menor a mayor
 public:
-  inline mycomparison(const bool& revparam=false)
+  inline mycomparison(const bool& revparam=true)
     {reverse=revparam;}
   inline bool operator() (const nodoA& lhs, const nodoA& rhs) const
   {

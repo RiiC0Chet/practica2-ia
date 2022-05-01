@@ -551,7 +551,6 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				hijoSEMITurnL.h= ChebyshevDistance(hijoSEMITurnL,destino);
 				hijoSEMITurnL.f= hijoSEMITurnL.g + hijoSEMITurnL.h;
 
-				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
 				Abiertos.push(hijoSEMITurnL);
 			}
 		}
