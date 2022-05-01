@@ -3,6 +3,7 @@
 
 #include "comportamientos/comportamiento.hpp"
 
+#include <stdlib.h>
 #include <list>
 
 struct estado {
@@ -20,6 +21,7 @@ struct nodo
 // struct de los nodos A*
 struct nodoA
 {
+  //nodo* padre;
   nodo actual;
   int g,h;
   int f; // calculo de la heuristica
@@ -45,10 +47,14 @@ class ComportamientoJugador : public Comportamiento {
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de Estado
       hay_plan = false;
+      bikini = false;
+      zapatillas = false;
     }
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hay_plan = false;
+      bikini = false;
+      zapatillas = false;
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
@@ -64,7 +70,9 @@ class ComportamientoJugador : public Comportamiento {
     list<estado> objetivos;
     list<Action> plan;
 
-    bool hay_plan; // comprobamos si hay plan establecido
+    bool hay_plan, // comprobamos si hay plan establecido
+          bikini,
+          zapatillas;
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
@@ -79,7 +87,7 @@ class ComportamientoJugador : public Comportamiento {
     }
 
     // sobrecarga distancia Chebyshev teniendo en cuenta las diagonales
-    inline int ChebyshevDistance(nodoA& uno, estado& dos)
+    inline int ChebyshevDistance(nodoA& uno, const estado& dos)
     {
       return abs(uno.actual.st.fila-dos.fila) > abs(uno.actual.st.columna-dos.columna) ? abs(uno.actual.st.fila-dos.fila) : abs(uno.actual.st.columna-dos.columna);
     }

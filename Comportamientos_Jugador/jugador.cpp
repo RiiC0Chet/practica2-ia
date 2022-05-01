@@ -17,6 +17,28 @@ Action ComportamientoJugador::think(Sensores sensores)
 	actual.fila = sensores.posF;
 	actual.columna = sensores.posC;
 	actual.orientacion = sensores.sentido;
+	
+	// comprobamos que estemos cayendo en unas zapatillas o bikini
+	if(sensores.terreno[0] == 'K')
+	{
+		if(zapatillas)
+		{
+			zapatillas = false;
+			bikini = true;
+		}
+		else	
+			bikini = true;
+	}
+	else if(sensores.terreno[0] == 'D')
+	{
+		if(bikini)
+		{
+			bikini = false;
+			zapatillas = true;
+		}
+		else	
+			zapatillas = true;
+	}
 
 	cout << "Fila: " << actual.fila << endl;
 	cout << "Col : " << actual.columna << endl;
@@ -75,6 +97,8 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 	case 2:
 		cout << "Optimo en coste\n";
 		// Incluir aqui la llamada al busqueda de costo uniforme/A*
+		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
+		return pathFinding_AStar(origen, un_objetivo, plan);
 		cout << "No implementado aun\n";
 		break;
 	case 3:
@@ -381,7 +405,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 // Implementación de la busqueda A*
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
-bool ComportamientoJugador::pathFinding_AStart(const estado &origen, const estado &destino, list<Action> &plan)
+bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan)
 {
 	// Borro la lista
 	cout << "Calculando plan\n";
@@ -394,7 +418,15 @@ bool ComportamientoJugador::pathFinding_AStart(const estado &origen, const estad
 	current.actual.st = origen;
 	current.actual.secuencia.empty();
 
+	//current.padre = nullptr;
+	current.g= 0;
+	current.f= 0;
+	current.h= ChebyshevDistance(current,destino);
+
 	Abiertos.push(current);
+
+	// coste asociado a la transicion por nodos
+	int costeF,costeTURN,costeSEMITURN;
 
 	while (!Abiertos.empty() and (current.actual.st.fila != destino.fila or current.actual.st.columna != destino.columna))
 	{
@@ -402,50 +434,141 @@ bool ComportamientoJugador::pathFinding_AStart(const estado &origen, const estad
 		Abiertos.pop();
 		Cerrados.insert(current.actual.st);
 
+		switch (mapaResultado[actual.fila][actual.columna])
+				{
+					case 'A':
+						if(bikini)
+						{
+							costeF = 10;
+							costeTURN = 5;
+							costeSEMITURN = 2;
+						}							
+						else
+						{
+							costeF = 200;
+							costeTURN = 500;
+							costeSEMITURN = 300;
+						}							
+					break;
+
+					case 'B':
+						if(zapatillas)
+						{
+							costeF = 15;
+							costeTURN = 1;
+							costeSEMITURN = 1;
+						}							
+						else
+						{
+							costeF = 100;
+							costeTURN = 3;
+							costeSEMITURN = 2;
+						}	
+					break;
+
+					case 'T':
+							costeF = 2;
+							costeTURN = 2;
+							costeSEMITURN = 1;
+					break;
+					
+					default:
+							costeF = 1;
+							costeTURN = 1;
+							costeSEMITURN = 1;
+					break;
+				}
+
+
 		// Generar descendiente de girar a la derecha 90 grados
 		nodoA hijoTurnR = current;
 		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
-		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
+		if (!HayObstaculoDelante(hijoTurnR.actual.st))
 		{
-			hijoTurnR.secuencia.push_back(actTURN_R);
+			if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
+			{
+				hijoTurnR.actual.secuencia.push_back(actTURN_R);
+				hijoTurnR.actual.secuencia.push_back(actFORWARD);
 
-			Abiertos.push(hijoTurnR);
+				hijoTurnR.g= current.g + costeTURN + costeF;
+				hijoTurnR.h= ChebyshevDistance(hijoTurnR,destino);
+				hijoTurnR.f= hijoTurnR.g + hijoTurnR.h;
+
+				Abiertos.push(hijoTurnR);
+			}
 		}
+		
 
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
-		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
-		if (Cerrados.find(hijoSEMITurnR.st) == Cerrados.end())
+		hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
+		if (!HayObstaculoDelante(hijoSEMITurnR.actual.st))
 		{
-			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
-			Abiertos.push(hijoSEMITurnR);
+			if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
+			{
+				hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+				hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
+
+				hijoSEMITurnR.g= current.g + costeSEMITURN + costeF;
+				hijoSEMITurnR.h= ChebyshevDistance(hijoSEMITurnR,destino);
+				hijoSEMITurnR.f= hijoSEMITurnR.g + hijoSEMITurnR.h;
+
+				Abiertos.push(hijoSEMITurnR);
+			}
 		}
+		
 
 		// Generar descendiente de girar a la izquierda 90 grados
 		nodoA hijoTurnL = current;
-		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
-		if (Cerrados.find(hijoTurnL.st) == Cerrados.end())
+		hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
+		if (!HayObstaculoDelante(hijoTurnL.actual.st))
 		{
-			hijoTurnL.secuencia.push_back(actTURN_L);
-			Abiertos.push(hijoTurnL);
+			if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
+			{
+				hijoTurnL.actual.secuencia.push_back(actTURN_L);
+				hijoTurnL.actual.secuencia.push_back(actFORWARD);
+
+				hijoTurnL.g= current.g + costeTURN + costeF;
+				hijoTurnL.h= ChebyshevDistance(hijoTurnL,destino);
+				hijoTurnL.f= hijoTurnL.g + hijoTurnL.h;
+
+				Abiertos.push(hijoTurnL);
+			}
 		}
+		
 
 		// Generar descendiente de girar a la izquierda 45 grados
 		nodoA hijoSEMITurnL = current;
-		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
-		if (Cerrados.find(hijoSEMITurnL.st) == Cerrados.end())
+		hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
+		if (!HayObstaculoDelante(hijoSEMITurnL.actual.st))
 		{
-			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
-			Abiertos.push(hijoSEMITurnL);
+			if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
+			{
+				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+				hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
+
+				hijoSEMITurnL.g= current.g + costeSEMITURN + costeF;
+				hijoSEMITurnL.h= ChebyshevDistance(hijoSEMITurnL,destino);
+				hijoSEMITurnL.f= hijoSEMITurnL.g + hijoSEMITurnL.h;
+
+				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+				Abiertos.push(hijoSEMITurnL);
+			}
 		}
+		
 
 		// Generar descendiente de avanzar
 		nodoA hijoForward = current;
-		if (!HayObstaculoDelante(hijoForward.st))
+		if (!HayObstaculoDelante(hijoForward.actual.st))
 		{
-			if (Cerrados.find(hijoForward.st) == Cerrados.end())
+			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
 			{
-				hijoForward.secuencia.push_back(actFORWARD);
+				hijoForward.actual.secuencia.push_back(actFORWARD);
+
+				hijoForward.g= current.g + costeF;
+				hijoForward.h= ChebyshevDistance(hijoForward,destino);
+				hijoForward.f= hijoForward.g + hijoForward.h;
+
 				Abiertos.push(hijoForward);
 			}
 		}
@@ -459,10 +582,10 @@ bool ComportamientoJugador::pathFinding_AStart(const estado &origen, const estad
 
 	cout << "Terminada la busqueda\n";
 
-	if (current.st.fila == destino.fila and current.st.columna == destino.columna)
+	if (current.actual.st.fila == destino.fila and current.actual.st.columna == destino.columna)
 	{
 		cout << "Cargando el plan\n";
-		plan = current.secuencia;
+		plan = current.actual.secuencia;
 		cout << "Longitud del plan: " << plan.size() << endl;
 		PintaPlan(plan);
 		// ver el plan en el mapa
