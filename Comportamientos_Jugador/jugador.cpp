@@ -741,7 +741,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 		// Generar descendiente de girar detras a la izquierda 225 grados
 		nodoA hijoBackSemiL = current;
-		hijoBackSemiL.actual.st.orientacion = (hijoBackSemiL.actual.st.orientacion + 3) % 8;
+		hijoBackSemiL.actual.st.orientacion = (hijoBackSemiL.actual.st.orientacion + 5) % 8;
 		if (!HayObstaculoDelante(hijoBackSemiL.actual.st))
 		{
 			if (Cerrados.find(hijoBackSemiL) == Cerrados.end())
