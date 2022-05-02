@@ -2,15 +2,49 @@
 #define COMPORTAMIENTOJUGADOR_H
 
 #include "comportamientos/comportamiento.hpp"
-
+#include <unordered_map>
 #include <stdlib.h>
 #include <list>
+
+template <class T>
+inline void hash_combine(std::size_t & s, const T & v)
+{
+  std::hash<T> h;
+  s^= h(v) + 0x9e3779b9 + (s<< 6) + (s>> 2);
+}
 
 struct estado {
   int fila;
   int columna;
   int orientacion;
+  bool bikini = false,
+       zapatillas = false;
+
+  bool operator==(const estado& uno) const
+  {
+    return (fila == uno.fila && columna == uno.columna && orientacion == uno.orientacion);// && bikini == uno.bikini && zapatillas == uno.zapatillas) 
+  }
 };
+
+template <class T>
+class MyHash;
+
+template<>
+struct MyHash<estado>
+{
+    std::size_t operator()(estado const& s) const 
+    {
+        std::size_t res = 0;
+       hash_combine(res,s.fila);
+       hash_combine(res,s.columna);
+       hash_combine(res,s.orientacion);
+       hash_combine(res,s.bikini);
+       hash_combine(res,s.zapatillas);
+
+        return res;
+    }
+};
+
 
 struct nodo
 {
@@ -25,6 +59,12 @@ struct nodoA
   nodo actual;
   int g,h;
   int f; // calculo de la heuristica
+
+  bool operator==(const nodoA& uno) const
+  {
+    return actual.st==(uno.actual.st);
+  }
+
 };
 
 
@@ -47,14 +87,14 @@ class ComportamientoJugador : public Comportamiento {
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de Estado
       hay_plan = false;
-      bikini = false;
-      zapatillas = false;
+      //bikini = false;
+      //zapatillas = false;
     }
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hay_plan = false;
-      bikini = false;
-      zapatillas = false;
+      //bikini = false;
+      //zapatillas = false;
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
@@ -70,9 +110,7 @@ class ComportamientoJugador : public Comportamiento {
     list<estado> objetivos;
     list<Action> plan;
 
-    bool hay_plan, // comprobamos si hay plan establecido
-          bikini,
-          zapatillas;
+    bool hay_plan; // comprobamos si hay plan establecido
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);

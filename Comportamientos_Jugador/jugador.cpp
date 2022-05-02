@@ -33,15 +33,14 @@ Action ComportamientoJugador::think(Sensores sensores)
 		objetivos.push_back(aux);
 	}
 
-	if(!hay_plan)
+	if (!hay_plan)
 		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 
-	if(hay_plan && plan.size() > 0)
+	if (hay_plan && plan.size() > 0)
 	{
 		accion = plan.front();
 		plan.pop_front();
 	}
-
 
 	return accion;
 }
@@ -57,8 +56,8 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 	{
 	case 0:
 		cout << "Demo\n";
-		//estado un_objetivo;
-		//un_objetivo = objetivos.front();
+		// estado un_objetivo;
+		// un_objetivo = objetivos.front();
 		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
 		return pathFinding_Profundidad(origen, un_objetivo, plan);
 		break;
@@ -66,8 +65,8 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 	case 1:
 		cout << "Optimo numero de acciones\n";
 		// Incluir aqui la llamada al busqueda en anchura
-		//estado un_objetivo;
-		//un_objetivo = objetivos.front();
+		// estado un_objetivo;
+		// un_objetivo = objetivos.front();
 		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
 		return pathFinding_Anchura(origen, un_objetivo, plan);
 		cout << "No implementado aun\n";
@@ -157,6 +156,20 @@ bool ComportamientoJugador::HayObstaculoDelante(estado &st)
 		// No hay obstaculo, actualizo el parametro st poniendo la casilla de delante.
 		st.fila = fil;
 		st.columna = col;
+
+		// comprobamos que estemos cayendo en unas zapatillas o bikini
+		if (mapaResultado[st.fila][st.columna] == 'K')
+		{
+			st.zapatillas = false;
+			st.bikini = true;
+		}
+		else if (mapaResultado[st.fila][st.columna] == 'D')
+		{
+			cout<<"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"<<endl;
+			st.bikini = false;
+			st.zapatillas = true;
+		}
+		
 		return false;
 	}
 	else
@@ -170,7 +183,9 @@ struct ComparaEstados
 	bool operator()(const estado &a, const estado &n) const
 	{
 		if ((a.fila > n.fila) or (a.fila == n.fila and a.columna > n.columna) or
-			(a.fila == n.fila and a.columna == n.columna and a.orientacion > n.orientacion))
+			(a.fila == n.fila and a.columna == n.columna and a.orientacion > n.orientacion) or
+			(a.fila == n.fila and a.columna == n.columna and a.orientacion == n.orientacion and a.bikini > n.bikini) or
+			(a.fila == n.fila and a.columna == n.columna and a.orientacion == n.orientacion and a.bikini == n.bikini and a.zapatillas > n.zapatillas))
 			return true;
 		else
 			return false;
@@ -181,11 +196,7 @@ struct ComparaNodosA
 {
 	bool operator()(const nodoA &a, const nodoA &n) const
 	{
-		if ((a.actual.st.fila > n.actual.st.fila) or (a.actual.st.fila == n.actual.st.fila and a.actual.st.columna > n.actual.st.columna) or
-			(a.actual.st.fila == n.actual.st.fila and a.actual.st.columna == n.actual.st.columna and a.actual.st.orientacion > n.actual.st.orientacion))
-			return true;
-		else
-			return false;
+		return ComparaEstados()(a.actual.st, n.actual.st);
 	}
 };
 
@@ -291,7 +302,7 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 // secuencia de acciones en plan, una lista de acciones.
 bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan)
 {
-	
+
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
@@ -357,7 +368,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 				if (hijoForward.st.fila == destino.fila && hijoForward.st.columna == destino.columna)
 				{
-					//cout<<"SALIMOS AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<endl;
+					// cout<<"SALIMOS AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<endl;
 					current = hijoForward;
 					break;
 				}
@@ -400,413 +411,233 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
-	set<nodoA, ComparaNodosA> Cerrados; // Lista de Cerrados
-	// using mycomparison:
-  	std::priority_queue<nodoA,std::vector<nodoA>,mycomparison> Abiertos;				  // Lista de Abiertos
+	unordered_map<estado,nodoA,MyHash<estado>> Cerrados;							   // Lista de Cerrados
+																		   // using mycomparison:
+	priority_queue<nodoA, vector<nodoA>, mycomparison> Abiertos; // Lista de Abiertos
 
 	nodoA current;
 	current.actual.st = origen;
 	current.actual.secuencia.empty();
 
-	//current.padre = nullptr;
-	current.g= 0;
-	current.f= 0;
-	current.h= ChebyshevDistance(current,destino);
+	// current.padre = nullptr;
+	current.g = 0;
+	current.f = 0;
+	current.h = ChebyshevDistance(current, destino);
 
 	Abiertos.push(current);
 
 	// coste asociado a la transicion por nodos
-	int costeF,costeTURN,costeSEMITURN;
+	int costeF, costeTURN, costeSEMITURN;
 
 	while (!Abiertos.empty() and (current.actual.st.fila != destino.fila or current.actual.st.columna != destino.columna))
 	{
 
 		Abiertos.pop();
-		Cerrados.insert(current);
-
+		Cerrados[current.actual.st]=current;//Insertamos en el unordered
 		switch (mapaResultado[current.actual.st.fila][current.actual.st.columna])
-				{
-					case 'A':
-						if(bikini)
-						{
-							costeF = 10;
-							costeTURN = 5;
-							costeSEMITURN = 2;
-						}							
-						else
-						{
-							costeF = 200;
-							costeTURN = 500;
-							costeSEMITURN = 300;
-						}		
-						cout<<endl;
-						cout<<"A"<<endl;	
-						cout<<endl;				
-					break;
+		{
+		case 'A':
+			if (current.actual.st.bikini)
+			{
+				costeF = 10;
+				costeTURN = 5;
+				costeSEMITURN = 2;
+			}
+			else
+			{
+				costeF = 200;
+				costeTURN = 500;
+				costeSEMITURN = 300;
+			}
+			// cout<<endl;
+			// cout<<"A"<<endl;
+			// cout<<endl;
+			break;
 
-					case 'B':
-						if(zapatillas)
-						{
-							costeF = 15;
-							costeTURN = 1;
-							costeSEMITURN = 1;
-						}							
-						else
-						{
-							costeF = 100;
-							costeTURN = 3;
-							costeSEMITURN = 2;
-						}	
-						cout<<endl;
-						cout<<"B"<<endl;	
-						cout<<endl;	
-					break;
+		case 'B':
+			if (current.actual.st.zapatillas)
+			{
+				costeF = 15;
+				costeTURN = 1;
+				costeSEMITURN = 1;
+			}
+			else
+			{
+				costeF = 100;
+				costeTURN = 3;
+				costeSEMITURN = 2;
+			}
+			// cout<<endl;
+			// cout<<"B"<<endl;
+			// cout<<endl;
+			break;
 
-					case 'T':
-							costeF = 2;
-							costeTURN = 2;
-							costeSEMITURN = 1;
-							//cout<<endl;
-							cout<<"T";//<<endl;	
-							//cout<<endl;	
-					break;
-					
-					default:
-							costeF = 1;
-							costeTURN = 1;
-							costeSEMITURN = 1;
-							cout<<endl;
-							cout<<"DEFAULT"<<endl;	
-							cout<<endl;	
-					break;
-				}
+		case 'T':
+			costeF = 2;
+			costeTURN = 2;
+			costeSEMITURN = 1;
+			// cout<<endl;
+			// cout<<"T";//<<endl;
+			// cout<<endl;
+			break;
 
+		default:
+			costeF = 1;
+			costeTURN = 1;
+			costeSEMITURN = 1;
+			// cout<<endl;
+			// cout<<"DEFAULT"<<endl;
+			// cout<<endl;
+			break;
+		}
 
 		// Generar descendiente de girar a la derecha 90 grados
 		nodoA hijoTurnR = current;
 		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
-		if (!HayObstaculoDelante(hijoTurnR.actual.st))
-		{
-			if (Cerrados.find(hijoTurnR) == Cerrados.end())
-			{
-				hijoTurnR.actual.secuencia.push_back(actTURN_R);
-				hijoTurnR.actual.secuencia.push_back(actFORWARD);
 
-				hijoTurnR.g= current.g + costeTURN + costeF;
-				hijoTurnR.h= ChebyshevDistance(hijoTurnR,destino);
-				hijoTurnR.f= hijoTurnR.g + hijoTurnR.h;
+		hijoTurnR.actual.secuencia.push_back(actTURN_R);
+		// hijoTurnR.actual.secuencia.push_back(actFORWARD);
+
+		hijoTurnR.g = current.g + costeTURN; // + costeF;
+		hijoTurnR.h = ChebyshevDistance(hijoTurnR, destino);
+		hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
+
+		if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
+		{
+			Abiertos.push(hijoTurnR);
+		}
+		else
+		{
+			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnR.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN)<<endl;
+			if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) // + costeF) )
+			{
+				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+				Cerrados.erase(hijoTurnR.actual.st);
 
 				Abiertos.push(hijoTurnR);
 			}
-			else
-			{
-				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnR)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN + costeF)<<endl;
-				if( (Cerrados.find(hijoTurnR)->g) > (current.g + costeTURN + costeF) )
-				{
-					//Cerrados.find(hijoTurnR)->g = current.g + costeTURN + costeF;
-					//Cerrados.find(hijoTurnR)->f = Cerrados.find(hijoTurnR)->h + Cerrados.find(hijoTurnR)->g;
-					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
-					Cerrados.erase(hijoTurnR);
-
-					hijoTurnR.actual.secuencia.push_back(actTURN_R);
-					hijoTurnR.actual.secuencia.push_back(actFORWARD);
-
-					hijoTurnR.g= current.g + costeTURN + costeF;
-					hijoTurnR.h= ChebyshevDistance(hijoTurnR,destino);
-					hijoTurnR.f= hijoTurnR.g + hijoTurnR.h;
-
-					Abiertos.push(hijoTurnR);
-				}
-			}
 		}
-		
 
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
 		hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
-		if (!HayObstaculoDelante(hijoSEMITurnR.actual.st))
-		{
-			if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
-			{
-				hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
-				hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
 
-				hijoSEMITurnR.g= current.g + costeSEMITURN + costeF;
-				hijoSEMITurnR.h= ChebyshevDistance(hijoSEMITurnR,destino);
-				hijoSEMITurnR.f= hijoSEMITurnR.g + hijoSEMITurnR.h;
+		hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+		// hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
+
+		hijoSEMITurnR.g = current.g + costeSEMITURN; // + costeF;
+		hijoSEMITurnR.h = ChebyshevDistance(hijoSEMITurnR, destino);
+		hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
+
+		if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
+		{
+			Abiertos.push(hijoSEMITurnR);
+		}
+		else
+		{
+			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnR.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN)<<endl;
+			if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g) // + costeF) )
+			{
+				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+				Cerrados.erase(hijoSEMITurnR.actual.st);
 
 				Abiertos.push(hijoSEMITurnR);
 			}
-			else
-			{
-				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnR)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN + costeF)<<endl;
-				if( (Cerrados.find(hijoSEMITurnR)->g) > (current.g + costeSEMITURN + costeF) )
-				{
-					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
-					Cerrados.erase(hijoSEMITurnR);
-
-					hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
-					hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
-
-					hijoSEMITurnR.g= current.g + costeSEMITURN + costeF;
-					hijoSEMITurnR.h= ChebyshevDistance(hijoSEMITurnR,destino);
-					hijoSEMITurnR.f= hijoSEMITurnR.g + hijoSEMITurnR.h;
-
-					Abiertos.push(hijoSEMITurnR);
-				}
-			}
 		}
-		
 
 		// Generar descendiente de girar a la izquierda 90 grados
 		nodoA hijoTurnL = current;
 		hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
-		if (!HayObstaculoDelante(hijoTurnL.actual.st))
-		{
-			if (Cerrados.find(hijoTurnL) == Cerrados.end())
-			{
-				hijoTurnL.actual.secuencia.push_back(actTURN_L);
-				hijoTurnL.actual.secuencia.push_back(actFORWARD);
+		hijoTurnL.actual.secuencia.push_back(actTURN_L);
+		// hijoTurnL.actual.secuencia.push_back(actFORWARD);
 
-				hijoTurnL.g= current.g + costeTURN + costeF;
-				hijoTurnL.h= ChebyshevDistance(hijoTurnL,destino);
-				hijoTurnL.f= hijoTurnL.g + hijoTurnL.h;
+		hijoTurnL.g = current.g + costeTURN; // + costeF;
+		hijoTurnL.h = ChebyshevDistance(hijoTurnL, destino);
+		hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
+
+		if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
+		{
+			Abiertos.push(hijoTurnL);
+		}
+		else
+		{
+			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnL.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN)<<endl;
+			if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g) // + costeF) )
+			{
+				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+				Cerrados.erase(hijoTurnL.actual.st);
 
 				Abiertos.push(hijoTurnL);
 			}
-			else
-			{
-				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnL)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN + costeF)<<endl;
-				if( (Cerrados.find(hijoTurnL)->g) > (current.g + costeTURN + costeF) )
-				{
-					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
-					Cerrados.erase(hijoTurnL);
-
-					hijoTurnL.actual.secuencia.push_back(actTURN_L);
-					hijoTurnL.actual.secuencia.push_back(actFORWARD);
-
-					hijoTurnL.g= current.g + costeTURN + costeF;
-					hijoTurnL.h= ChebyshevDistance(hijoTurnL,destino);
-					hijoTurnL.f= hijoTurnL.g + hijoTurnL.h;
-
-					Abiertos.push(hijoTurnL);
-				}
-			}
 		}
-		
 
 		// Generar descendiente de girar a la izquierda 45 grados
 		nodoA hijoSEMITurnL = current;
 		hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
-		if (!HayObstaculoDelante(hijoSEMITurnL.actual.st))
-		{
-			if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
-			{
-				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
-				hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
 
-				hijoSEMITurnL.g= current.g + costeSEMITURN + costeF;
-				hijoSEMITurnL.h= ChebyshevDistance(hijoSEMITurnL,destino);
-				hijoSEMITurnL.f= hijoSEMITurnL.g + hijoSEMITurnL.h;
+		hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+		// hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
+
+		hijoSEMITurnL.g = current.g + costeSEMITURN; //+ costeF;
+		hijoSEMITurnL.h = ChebyshevDistance(hijoSEMITurnL, destino);
+		hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
+
+		if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
+		{
+			Abiertos.push(hijoSEMITurnL);
+		}
+		else
+		{
+			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnL.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN)<<endl;
+			if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g) // + costeF) )
+			{
+				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+				Cerrados.erase(hijoSEMITurnL.actual.st);
 
 				Abiertos.push(hijoSEMITurnL);
 			}
-			else
-			{
-				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnL)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN + costeF)<<endl;
-				if( (Cerrados.find(hijoSEMITurnL)->g) > (current.g + costeSEMITURN + costeF) )
-				{
-					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
-					Cerrados.erase(hijoSEMITurnL);
-
-					hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
-					hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
-
-					hijoSEMITurnL.g= current.g + costeSEMITURN + costeF;
-					hijoSEMITurnL.h= ChebyshevDistance(hijoSEMITurnL,destino);
-					hijoSEMITurnL.f= hijoSEMITurnL.g + hijoSEMITurnL.h;
-
-					Abiertos.push(hijoSEMITurnL);
-				}
-			}
 		}
-		
 
 		// Generar descendiente de avanzar
 		nodoA hijoForward = current;
 		if (!HayObstaculoDelante(hijoForward.actual.st))
 		{
-			if (Cerrados.find(hijoForward) == Cerrados.end())
+			hijoForward.actual.secuencia.push_back(actFORWARD);
+
+			hijoForward.g = current.g + costeF;
+			hijoForward.h = ChebyshevDistance(hijoForward, destino);
+			hijoForward.f = hijoForward.g + hijoForward.h;
+
+			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
 			{
-				hijoForward.actual.secuencia.push_back(actFORWARD);
-
-				hijoForward.g= current.g + costeF;
-				hijoForward.h= ChebyshevDistance(hijoForward,destino);
-				hijoForward.f= hijoForward.g + hijoForward.h;
-
 				Abiertos.push(hijoForward);
 			}
 			else
 			{
-				//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoForward)->g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeF)<<endl;
-				if( (Cerrados.find(hijoForward)->g) > (current.g + costeF) )
+				if(Cerrados.find(hijoForward.actual.st)->first.fila == 19 && Cerrados.find(hijoForward.actual.st)->first.columna == 19 && Cerrados.find(hijoForward.actual.st)->first.orientacion == 0 )
+					cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoForward.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeF)<<endl;
+				if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
 				{
-					//cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
-					Cerrados.erase(hijoForward);
-
-					hijoForward.actual.secuencia.push_back(actFORWARD);
-
-					hijoForward.g= current.g + costeF;
-					hijoForward.h= ChebyshevDistance(hijoForward,destino);
-					hijoForward.f= hijoForward.g + hijoForward.h;
-
+					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+					Cerrados.erase(hijoForward.actual.st);
 					Abiertos.push(hijoForward);
 				}
 			}
+
+			
 		}
 
-		// Generar descendiente de girar detras 180 grados
-		nodoA hijoBack = current;
-		hijoBack.actual.st.orientacion = (hijoBack.actual.st.orientacion + 4) % 8;
-		if (!HayObstaculoDelante(hijoBack.actual.st))
-		{
-			if (Cerrados.find(hijoBack) == Cerrados.end())
-			{
-				hijoBack.actual.secuencia.push_back(actTURN_R);
-				hijoBack.actual.secuencia.push_back(actTURN_R);
-				hijoBack.actual.secuencia.push_back(actFORWARD);
-
-				hijoBack.g= current.g + costeTURN + costeTURN +costeF;
-				hijoBack.h= ChebyshevDistance(hijoBack,destino);
-				hijoBack.f= hijoBack.g + hijoBack.h;
-
-				Abiertos.push(hijoBack);
-			}
-			else
-			{
-				if( (Cerrados.find(hijoBack)->g) > (current.g + costeTURN + costeTURN+  costeF) )
-				{
-					Cerrados.erase(hijoBack);
-
-					hijoBack.actual.secuencia.push_back(actTURN_R);
-					hijoBack.actual.secuencia.push_back(actTURN_R);
-					hijoBack.actual.secuencia.push_back(actFORWARD);
-
-					hijoBack.g= current.g + costeTURN + costeTURN+ costeF;
-					hijoBack.h= ChebyshevDistance(hijoBack,destino);
-					hijoBack.f= hijoBack.g + hijoBack.h;
-
-					Abiertos.push(hijoBack);
-				}
-			}
-		}
-
-
-		// Generar descendiente de girar detras a la derecha 135 grados
-		nodoA hijoBackSemiR = current;
-		hijoBackSemiR.actual.st.orientacion = (hijoBackSemiR.actual.st.orientacion + 3) % 8;
-		if (!HayObstaculoDelante(hijoBackSemiR.actual.st))
-		{
-			if (Cerrados.find(hijoBackSemiR) == Cerrados.end())
-			{
-				hijoBackSemiR.actual.secuencia.push_back(actTURN_R);
-				hijoBackSemiR.actual.secuencia.push_back(actSEMITURN_R);
-				hijoBackSemiR.actual.secuencia.push_back(actFORWARD);
-
-				hijoBackSemiR.g= current.g + costeTURN + costeSEMITURN +costeF;
-				hijoBackSemiR.h= ChebyshevDistance(hijoBackSemiR,destino);
-				hijoBackSemiR.f= hijoBackSemiR.g + hijoBackSemiR.h;
-
-				Abiertos.push(hijoBackSemiR);
-			}
-			else
-			{
-				if( (Cerrados.find(hijoBackSemiR)->g) > (current.g + costeTURN + costeSEMITURN +costeF) )
-				{
-					Cerrados.erase(hijoBackSemiR);
-
-					hijoBackSemiR.actual.secuencia.push_back(actTURN_R);
-					hijoBackSemiR.actual.secuencia.push_back(actSEMITURN_R);
-					hijoBackSemiR.actual.secuencia.push_back(actFORWARD);
-
-					hijoBackSemiR.g= current.g + costeTURN + costeSEMITURN +costeF;
-					hijoBackSemiR.h= ChebyshevDistance(hijoBackSemiR,destino);
-					hijoBackSemiR.f= hijoBackSemiR.g + hijoBackSemiR.h;
-
-					Abiertos.push(hijoBackSemiR);
-				}
-			}
-		}
-
-
-		// Generar descendiente de girar detras a la izquierda 225 grados
-		nodoA hijoBackSemiL = current;
-		hijoBackSemiL.actual.st.orientacion = (hijoBackSemiL.actual.st.orientacion + 5) % 8;
-		if (!HayObstaculoDelante(hijoBackSemiL.actual.st))
-		{
-			if (Cerrados.find(hijoBackSemiL) == Cerrados.end())
-			{
-				hijoBackSemiL.actual.secuencia.push_back(actTURN_L);
-				hijoBackSemiL.actual.secuencia.push_back(actSEMITURN_L);
-				hijoBackSemiL.actual.secuencia.push_back(actFORWARD);
-
-				hijoBackSemiL.g= current.g + costeTURN + costeSEMITURN +costeF;
-				hijoBackSemiL.h= ChebyshevDistance(hijoBackSemiL,destino);
-				hijoBackSemiL.f= hijoBackSemiL.g + hijoBackSemiL.h;
-
-				Abiertos.push(hijoBackSemiL);
-			}
-			else
-			{
-				if( (Cerrados.find(hijoBackSemiL)->g) > (current.g + costeTURN + costeSEMITURN +costeF) )
-				{
-					Cerrados.erase(hijoBackSemiL);
-
-					hijoBackSemiL.actual.secuencia.push_back(actTURN_L);
-					hijoBackSemiL.actual.secuencia.push_back(actSEMITURN_L);
-					hijoBackSemiL.actual.secuencia.push_back(actFORWARD);
-
-					hijoBackSemiL.g= current.g + costeTURN + costeSEMITURN +costeF;
-					hijoBackSemiL.h= ChebyshevDistance(hijoBackSemiL,destino);
-					hijoBackSemiL.f= hijoBackSemiL.g + hijoBackSemiL.h;
-
-					Abiertos.push(hijoBackSemiL);
-				}
-			}
-		}
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
 			current = Abiertos.top();
-			
-			
-			// comprobamos que estemos cayendo en unas zapatillas o bikini
-			if(mapaResultado[current.actual.st.fila][current.actual.st.columna] == 'K')
-			{
-				if(zapatillas)
-				{
-					zapatillas = false;
-					bikini = true;
-				}
-				else	
-					bikini = true;
-			}
-			else if(mapaResultado[current.actual.st.fila][current.actual.st.columna] == 'D')
-			{
-				if(bikini)
-				{
-					bikini = false;
-					zapatillas = true;
-				}
-				else	
-					zapatillas = true;
-			}
-			
-			//cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
+
+			// cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
 		}
 	}
 
-	cout << "Terminada la busqueda\n";
+	cout << "Terminada la busqueda. "
+		 << "El nodo actual tiene bikini : " << current.actual.st.bikini << " Y zapatillas : " << current.actual.st.zapatillas << "\n";
 
 	if (current.actual.st.fila == destino.fila and current.actual.st.columna == destino.columna)
 	{
@@ -825,7 +656,6 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 	return false;
 }
-
 
 // Sacar por la consola la secuencia del plan obtenido
 void ComportamientoJugador::PintaPlan(list<Action> plan)
