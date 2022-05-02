@@ -165,7 +165,6 @@ bool ComportamientoJugador::HayObstaculoDelante(estado &st)
 		}
 		else if (mapaResultado[st.fila][st.columna] == 'D')
 		{
-			cout<<"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"<<endl;
 			st.bikini = false;
 			st.zapatillas = true;
 		}
@@ -368,7 +367,6 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 				if (hijoForward.st.fila == destino.fila && hijoForward.st.columna == destino.columna)
 				{
-					// cout<<"SALIMOS AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<endl;
 					current = hijoForward;
 					break;
 				}
@@ -411,8 +409,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
-	unordered_map<estado,nodoA,MyHash<estado>> Cerrados;							   // Lista de Cerrados
-																		   // using mycomparison:
+	unordered_map<estado,nodoA,MyHash<estado>> Cerrados;				
 	priority_queue<nodoA, vector<nodoA>, mycomparison> Abiertos; // Lista de Abiertos
 
 	nodoA current;
@@ -433,7 +430,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	{
 
 		Abiertos.pop();
-		Cerrados[current.actual.st]=current;//Insertamos en el unordered
+		Cerrados.insert(pair<estado,nodoA>(current.actual.st,current));//Insertamos en el unordered
 		switch (mapaResultado[current.actual.st.fila][current.actual.st.columna])
 		{
 		case 'A':
@@ -449,9 +446,6 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				costeTURN = 500;
 				costeSEMITURN = 300;
 			}
-			// cout<<endl;
-			// cout<<"A"<<endl;
-			// cout<<endl;
 			break;
 
 		case 'B':
@@ -467,27 +461,18 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				costeTURN = 3;
 				costeSEMITURN = 2;
 			}
-			// cout<<endl;
-			// cout<<"B"<<endl;
-			// cout<<endl;
 			break;
 
 		case 'T':
 			costeF = 2;
 			costeTURN = 2;
 			costeSEMITURN = 1;
-			// cout<<endl;
-			// cout<<"T";//<<endl;
-			// cout<<endl;
 			break;
 
 		default:
 			costeF = 1;
 			costeTURN = 1;
 			costeSEMITURN = 1;
-			// cout<<endl;
-			// cout<<"DEFAULT"<<endl;
-			// cout<<endl;
 			break;
 		}
 
@@ -496,22 +481,17 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
 
 		hijoTurnR.actual.secuencia.push_back(actTURN_R);
-		// hijoTurnR.actual.secuencia.push_back(actFORWARD);
-
-		hijoTurnR.g = current.g + costeTURN; // + costeF;
+	
+		hijoTurnR.g = current.g + costeTURN; 
 		hijoTurnR.h = ChebyshevDistance(hijoTurnR, destino);
 		hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
 
 		if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
-		{
 			Abiertos.push(hijoTurnR);
-		}
 		else
 		{
-			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnR.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN)<<endl;
-			if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) // + costeF) )
+			if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) 
 			{
-				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
 				Cerrados.erase(hijoTurnR.actual.st);
 
 				Abiertos.push(hijoTurnR);
@@ -523,22 +503,17 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
 
 		hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
-		// hijoSEMITurnR.actual.secuencia.push_back(actFORWARD);
 
-		hijoSEMITurnR.g = current.g + costeSEMITURN; // + costeF;
+		hijoSEMITurnR.g = current.g + costeSEMITURN; 
 		hijoSEMITurnR.h = ChebyshevDistance(hijoSEMITurnR, destino);
 		hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
 
 		if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
-		{
 			Abiertos.push(hijoSEMITurnR);
-		}
 		else
 		{
-			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnR.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN)<<endl;
-			if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g) // + costeF) )
+			if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
 			{
-				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
 				Cerrados.erase(hijoSEMITurnR.actual.st);
 
 				Abiertos.push(hijoSEMITurnR);
@@ -549,9 +524,8 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		nodoA hijoTurnL = current;
 		hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
 		hijoTurnL.actual.secuencia.push_back(actTURN_L);
-		// hijoTurnL.actual.secuencia.push_back(actFORWARD);
 
-		hijoTurnL.g = current.g + costeTURN; // + costeF;
+		hijoTurnL.g = current.g + costeTURN; 
 		hijoTurnL.h = ChebyshevDistance(hijoTurnL, destino);
 		hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
 
@@ -561,10 +535,8 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		}
 		else
 		{
-			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoTurnL.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeTURN)<<endl;
-			if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g) // + costeF) )
+			if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
 			{
-				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
 				Cerrados.erase(hijoTurnL.actual.st);
 
 				Abiertos.push(hijoTurnL);
@@ -576,22 +548,17 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
 
 		hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
-		// hijoSEMITurnL.actual.secuencia.push_back(actFORWARD);
 
-		hijoSEMITurnL.g = current.g + costeSEMITURN; //+ costeF;
+		hijoSEMITurnL.g = current.g + costeSEMITURN;
 		hijoSEMITurnL.h = ChebyshevDistance(hijoSEMITurnL, destino);
 		hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
 
 		if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
-		{
 			Abiertos.push(hijoSEMITurnL);
-		}
 		else
 		{
-			//cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoSEMITurnL.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeSEMITURN)<<endl;
-			if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g) // + costeF) )
+			if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
 			{
-				cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
 				Cerrados.erase(hijoSEMITurnL.actual.st);
 
 				Abiertos.push(hijoSEMITurnL);
@@ -609,16 +576,11 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			hijoForward.f = hijoForward.g + hijoForward.h;
 
 			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
-			{
 				Abiertos.push(hijoForward);
-			}
 			else
 			{
-				if(Cerrados.find(hijoForward.actual.st)->first.fila == 19 && Cerrados.find(hijoForward.actual.st)->first.columna == 19 && Cerrados.find(hijoForward.actual.st)->first.orientacion == 0 )
-					cout<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(Cerrados.find(hijoForward.actual.st)->second.g)<<"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"<<(current.g + costeF)<<endl;
 				if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
 				{
-					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
 					Cerrados.erase(hijoForward.actual.st);
 					Abiertos.push(hijoForward);
 				}
@@ -629,15 +591,10 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
-		{
 			current = Abiertos.top();
-
-			// cout<<"El proximo nodo a coger es: "<<current.actual.st.fila<<" "<<current.actual.st.columna<<endl;
-		}
 	}
 
-	cout << "Terminada la busqueda. "
-		 << "El nodo actual tiene bikini : " << current.actual.st.bikini << " Y zapatillas : " << current.actual.st.zapatillas << "\n";
+	cout << "Terminada la busqueda. " << endl;
 
 	if (current.actual.st.fila == destino.fila and current.actual.st.columna == destino.columna)
 	{
