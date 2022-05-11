@@ -488,15 +488,15 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 		if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
 			Abiertos.push(hijoTurnR);
-		else
+		else if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) 
 		{
-			if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) 
-			{
-				Cerrados.erase(hijoTurnR.actual.st);
+			Cerrados.erase(hijoTurnR.actual.st);
 
-				Abiertos.push(hijoTurnR);
-			}
+			Abiertos.push(hijoTurnR);
 		}
+		
+			
+		
 
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
@@ -511,13 +511,11 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
 			Abiertos.push(hijoSEMITurnR);
 		else
+		if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
 		{
-			if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
-			{
-				Cerrados.erase(hijoSEMITurnR.actual.st);
+			Cerrados.erase(hijoSEMITurnR.actual.st);
 
-				Abiertos.push(hijoSEMITurnR);
-			}
+			Abiertos.push(hijoSEMITurnR);
 		}
 
 		// Generar descendiente de girar a la izquierda 90 grados
@@ -533,15 +531,13 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 		{
 			Abiertos.push(hijoTurnL);
 		}
-		else
+		else if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
 		{
-			if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
-			{
-				Cerrados.erase(hijoTurnL.actual.st);
+			Cerrados.erase(hijoTurnL.actual.st);
 
-				Abiertos.push(hijoTurnL);
-			}
+			Abiertos.push(hijoTurnL);
 		}
+		
 
 		// Generar descendiente de girar a la izquierda 45 grados
 		nodoA hijoSEMITurnL = current;
@@ -555,15 +551,13 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 		if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
 			Abiertos.push(hijoSEMITurnL);
-		else
+		else if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
 		{
-			if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
-			{
-				Cerrados.erase(hijoSEMITurnL.actual.st);
+			Cerrados.erase(hijoSEMITurnL.actual.st);
 
-				Abiertos.push(hijoSEMITurnL);
-			}
+			Abiertos.push(hijoSEMITurnL);
 		}
+		
 
 		// Generar descendiente de avanzar
 		nodoA hijoForward = current;
@@ -577,14 +571,12 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
 				Abiertos.push(hijoForward);
-			else
+			else if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
 			{
-				if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
-				{
-					Cerrados.erase(hijoForward.actual.st);
-					Abiertos.push(hijoForward);
-				}
+				Cerrados.erase(hijoForward.actual.st);
+				Abiertos.push(hijoForward);
 			}
+			
 
 			
 		}
