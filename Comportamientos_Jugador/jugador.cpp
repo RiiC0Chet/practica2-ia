@@ -489,11 +489,13 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			hijoTurnR.h = ChebyshevDistance(hijoTurnR, destino);
 			hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
 
-			if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
+			auto iterator = Cerrados.find(hijoTurnR.actual.st);
+
+			if ( iterator == Cerrados.end())
 				Abiertos.push(hijoTurnR);
-			else if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g)
+			else if ((iterator->second.g) > hijoTurnR.g)
 			{
-				Cerrados.erase(hijoTurnR.actual.st);
+				Cerrados.erase(iterator);
 				Abiertos.push(hijoTurnR);
 			}
 			
@@ -508,11 +510,12 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			hijoSEMITurnR.h = ChebyshevDistance(hijoSEMITurnR, destino);
 			hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
 
-			if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
+			iterator = Cerrados.find(hijoSEMITurnR.actual.st);
+			if ( iterator == Cerrados.end())
 				Abiertos.push(hijoSEMITurnR);
-			else if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
+			else if ((iterator->second.g) > hijoSEMITurnR.g)
 			{
-				Cerrados.erase(hijoSEMITurnR.actual.st);
+				Cerrados.erase(iterator);
 				Abiertos.push(hijoSEMITurnR);
 			}
 			
@@ -525,14 +528,15 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			hijoTurnL.g = current.g + costeTURN;
 			hijoTurnL.h = ChebyshevDistance(hijoTurnL, destino);
 			hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
-
-			if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
+			
+			iterator = Cerrados.find(hijoTurnL.actual.st);
+			if ( iterator == Cerrados.end())
 			{
 				Abiertos.push(hijoTurnL);
 			}
-			else if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
+			else if ((iterator->second.g) > hijoTurnL.g)
 			{
-				Cerrados.erase(hijoTurnL.actual.st);
+				Cerrados.erase(iterator);
 				Abiertos.push(hijoTurnL);
 			}
 			
@@ -547,11 +551,12 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 			hijoSEMITurnL.h = ChebyshevDistance(hijoSEMITurnL, destino);
 			hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
 
-			if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
+			iterator = Cerrados.find(hijoSEMITurnL.actual.st);
+			if ( iterator == Cerrados.end())
 				Abiertos.push(hijoSEMITurnL);
-			else if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
+			else if ((iterator->second.g) > hijoSEMITurnL.g)
 			{
-				Cerrados.erase(hijoSEMITurnL.actual.st);
+				Cerrados.erase(iterator);
 				Abiertos.push(hijoSEMITurnL);
 			}
 			
@@ -566,11 +571,12 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				hijoForward.h = ChebyshevDistance(hijoForward, destino);
 				hijoForward.f = hijoForward.g + hijoForward.h;
 
-				if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
+				iterator = Cerrados.find(hijoForward.actual.st);
+				if ( iterator == Cerrados.end())
 					Abiertos.push(hijoForward);
-				else if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
+				else if ((iterator->second.g) > hijoForward.g)
 				{
-						Cerrados.erase(hijoForward.actual.st);
+						Cerrados.erase(iterator);
 						Abiertos.push(hijoForward);
 				}
 				
