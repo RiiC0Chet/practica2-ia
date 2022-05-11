@@ -168,7 +168,7 @@ bool ComportamientoJugador::HayObstaculoDelante(estado &st)
 			st.bikini = false;
 			st.zapatillas = true;
 		}
-		
+
 		return false;
 	}
 	else
@@ -400,7 +400,6 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 	return false;
 }
 
-
 // Implementación de la busqueda A*
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
@@ -409,7 +408,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
-	unordered_map<estado,nodoA,MyHash<estado>> Cerrados;				
+	unordered_map<estado, nodoA, MyHash<estado>> Cerrados;
 	priority_queue<nodoA, vector<nodoA>, mycomparison> Abiertos; // Lista de Abiertos
 
 	nodoA current;
@@ -430,155 +429,152 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	{
 
 		Abiertos.pop();
-		Cerrados.insert(pair<estado,nodoA>(current.actual.st,current));//Insertamos en el unordered
-		switch (mapaResultado[current.actual.st.fila][current.actual.st.columna])
-		{
-		case 'A':
-			if (current.actual.st.bikini)
-			{
-				costeF = 10;
-				costeTURN = 5;
-				costeSEMITURN = 2;
-			}
-			else
-			{
-				costeF = 200;
-				costeTURN = 500;
-				costeSEMITURN = 300;
-			}
-			break;
 
-		case 'B':
-			if (current.actual.st.zapatillas)
+		if (Cerrados.find(current.actual.st) == Cerrados.end())
+		{
+
+			Cerrados.insert(pair<estado, nodoA>(current.actual.st, current)); // Insertamos en el unordered
+			switch (mapaResultado[current.actual.st.fila][current.actual.st.columna])
 			{
-				costeF = 15;
+			case 'A':
+				if (current.actual.st.bikini)
+				{
+					costeF = 10;
+					costeTURN = 5;
+					costeSEMITURN = 2;
+				}
+				else
+				{
+					costeF = 200;
+					costeTURN = 500;
+					costeSEMITURN = 300;
+				}
+				break;
+
+			case 'B':
+				if (current.actual.st.zapatillas)
+				{
+					costeF = 15;
+					costeTURN = 1;
+					costeSEMITURN = 1;
+				}
+				else
+				{
+					costeF = 100;
+					costeTURN = 3;
+					costeSEMITURN = 2;
+				}
+				break;
+
+			case 'T':
+				costeF = 2;
+				costeTURN = 2;
+				costeSEMITURN = 1;
+				break;
+
+			default:
+				costeF = 1;
 				costeTURN = 1;
 				costeSEMITURN = 1;
+				break;
 			}
-			else
+
+			// Generar descendiente de girar a la derecha 90 grados
+			nodoA hijoTurnR = current;
+			hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
+
+			hijoTurnR.actual.secuencia.push_back(actTURN_R);
+
+			hijoTurnR.g = current.g + costeTURN;
+			hijoTurnR.h = ChebyshevDistance(hijoTurnR, destino);
+			hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
+
+			if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
+				Abiertos.push(hijoTurnR);
+			else if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g)
 			{
-				costeF = 100;
-				costeTURN = 3;
-				costeSEMITURN = 2;
+				Cerrados.erase(hijoTurnR.actual.st);
+				Abiertos.push(hijoTurnR);
 			}
-			break;
-
-		case 'T':
-			costeF = 2;
-			costeTURN = 2;
-			costeSEMITURN = 1;
-			break;
-
-		default:
-			costeF = 1;
-			costeTURN = 1;
-			costeSEMITURN = 1;
-			break;
-		}
-
-		// Generar descendiente de girar a la derecha 90 grados
-		nodoA hijoTurnR = current;
-		hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
-
-		hijoTurnR.actual.secuencia.push_back(actTURN_R);
-	
-		hijoTurnR.g = current.g + costeTURN; 
-		hijoTurnR.h = ChebyshevDistance(hijoTurnR, destino);
-		hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
-
-		if (Cerrados.find(hijoTurnR.actual.st) == Cerrados.end())
-			Abiertos.push(hijoTurnR);
-		else if ((Cerrados.find(hijoTurnR.actual.st)->second.g) > hijoTurnR.g) 
-		{
-			Cerrados.erase(hijoTurnR.actual.st);
-
-			Abiertos.push(hijoTurnR);
-		}
-		
 			
-		
 
-		// Generar descendiente de girar a la derecha 45 grados
-		nodoA hijoSEMITurnR = current;
-		hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
+			// Generar descendiente de girar a la derecha 45 grados
+			nodoA hijoSEMITurnR = current;
+			hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
 
-		hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+			hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
 
-		hijoSEMITurnR.g = current.g + costeSEMITURN; 
-		hijoSEMITurnR.h = ChebyshevDistance(hijoSEMITurnR, destino);
-		hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
+			hijoSEMITurnR.g = current.g + costeSEMITURN;
+			hijoSEMITurnR.h = ChebyshevDistance(hijoSEMITurnR, destino);
+			hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
 
-		if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
-			Abiertos.push(hijoSEMITurnR);
-		else
-		if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
-		{
-			Cerrados.erase(hijoSEMITurnR.actual.st);
-
-			Abiertos.push(hijoSEMITurnR);
-		}
-
-		// Generar descendiente de girar a la izquierda 90 grados
-		nodoA hijoTurnL = current;
-		hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
-		hijoTurnL.actual.secuencia.push_back(actTURN_L);
-
-		hijoTurnL.g = current.g + costeTURN; 
-		hijoTurnL.h = ChebyshevDistance(hijoTurnL, destino);
-		hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
-
-		if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
-		{
-			Abiertos.push(hijoTurnL);
-		}
-		else if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
-		{
-			Cerrados.erase(hijoTurnL.actual.st);
-
-			Abiertos.push(hijoTurnL);
-		}
-		
-
-		// Generar descendiente de girar a la izquierda 45 grados
-		nodoA hijoSEMITurnL = current;
-		hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
-
-		hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
-
-		hijoSEMITurnL.g = current.g + costeSEMITURN;
-		hijoSEMITurnL.h = ChebyshevDistance(hijoSEMITurnL, destino);
-		hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
-
-		if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
-			Abiertos.push(hijoSEMITurnL);
-		else if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
-		{
-			Cerrados.erase(hijoSEMITurnL.actual.st);
-
-			Abiertos.push(hijoSEMITurnL);
-		}
-		
-
-		// Generar descendiente de avanzar
-		nodoA hijoForward = current;
-		if (!HayObstaculoDelante(hijoForward.actual.st))
-		{
-			hijoForward.actual.secuencia.push_back(actFORWARD);
-
-			hijoForward.g = current.g + costeF;
-			hijoForward.h = ChebyshevDistance(hijoForward, destino);
-			hijoForward.f = hijoForward.g + hijoForward.h;
-
-			if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
-				Abiertos.push(hijoForward);
-			else if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
+			if (Cerrados.find(hijoSEMITurnR.actual.st) == Cerrados.end())
+				Abiertos.push(hijoSEMITurnR);
+			else if ((Cerrados.find(hijoSEMITurnR.actual.st)->second.g) > hijoSEMITurnR.g)
 			{
-				Cerrados.erase(hijoForward.actual.st);
-				Abiertos.push(hijoForward);
+				Cerrados.erase(hijoSEMITurnR.actual.st);
+				Abiertos.push(hijoSEMITurnR);
 			}
 			
 
+			// Generar descendiente de girar a la izquierda 90 grados
+			nodoA hijoTurnL = current;
+			hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
+			hijoTurnL.actual.secuencia.push_back(actTURN_L);
+
+			hijoTurnL.g = current.g + costeTURN;
+			hijoTurnL.h = ChebyshevDistance(hijoTurnL, destino);
+			hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
+
+			if (Cerrados.find(hijoTurnL.actual.st) == Cerrados.end())
+			{
+				Abiertos.push(hijoTurnL);
+			}
+			else if ((Cerrados.find(hijoTurnL.actual.st)->second.g) > hijoTurnL.g)
+			{
+				Cerrados.erase(hijoTurnL.actual.st);
+				Abiertos.push(hijoTurnL);
+			}
 			
+
+			// Generar descendiente de girar a la izquierda 45 grados
+			nodoA hijoSEMITurnL = current;
+			hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
+
+			hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+
+			hijoSEMITurnL.g = current.g + costeSEMITURN;
+			hijoSEMITurnL.h = ChebyshevDistance(hijoSEMITurnL, destino);
+			hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
+
+			if (Cerrados.find(hijoSEMITurnL.actual.st) == Cerrados.end())
+				Abiertos.push(hijoSEMITurnL);
+			else if ((Cerrados.find(hijoSEMITurnL.actual.st)->second.g) > hijoSEMITurnL.g)
+			{
+				Cerrados.erase(hijoSEMITurnL.actual.st);
+				Abiertos.push(hijoSEMITurnL);
+			}
+			
+
+			// Generar descendiente de avanzar
+			nodoA hijoForward = current;
+			if (!HayObstaculoDelante(hijoForward.actual.st))
+			{
+				hijoForward.actual.secuencia.push_back(actFORWARD);
+
+				hijoForward.g = current.g + costeF;
+				hijoForward.h = ChebyshevDistance(hijoForward, destino);
+				hijoForward.f = hijoForward.g + hijoForward.h;
+
+				if (Cerrados.find(hijoForward.actual.st) == Cerrados.end())
+					Abiertos.push(hijoForward);
+				else if ((Cerrados.find(hijoForward.actual.st)->second.g) > hijoForward.g)
+				{
+						Cerrados.erase(hijoForward.actual.st);
+						Abiertos.push(hijoForward);
+				}
+				
+			}
 		}
 
 		// Tomo el siguiente valor de la Abiertos
