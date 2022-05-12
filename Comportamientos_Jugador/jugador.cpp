@@ -25,6 +25,63 @@ Action ComportamientoJugador::think(Sensores sensores)
 	//pintamos el mapa si estamos en el nivel 3 y 4
 	if(sensores.nivel == 3 || sensores.nivel == 4 )
 	{
+		list<estado> destinos;
+
+		//variables auxiliares para los destinos
+		estado auxiliar;
+
+		auxiliar.fila = 0;
+		auxiliar.columna = 0;
+		auxiliar.orientacion = 2;
+
+		destinos.push_back(auxiliar);
+
+		int longtud_linea= mapaResultado.size() -6; // de esta manera eliminamos los margenes
+
+		//insertamos los destinos
+
+		for(int i=0;i<(mapaResultado.size()/3);i++)
+		{
+			//avanzamos hacia adentro
+			auxiliar.fila+=3;
+			auxiliar.columna+=3;
+
+			//primer for para rellenar horizontalmente
+			for(int j=0;j<longtud_linea;j++)
+			{
+				auxiliar.columna++;
+				destinos.push_back(auxiliar);
+			}
+
+			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+			//segundo for para rellenar  vertical
+			for(int j=0;j<(mapaResultado.size()/3);j++)
+			{
+				auxiliar.fila++;
+				destinos.push_back(auxiliar);
+			}
+
+			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+			//segundo for para rellenar horizontalmente
+			for(int j=0;j<(mapaResultado.size()/3);j++)
+			{
+				auxiliar.columna++;
+				destinos.push_back(auxiliar);
+			}
+
+			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+			//segundo for para rellenar  vertical
+			for(int j=0;j<(mapaResultado.size()/3);j++)
+			{
+				auxiliar.fila++;
+				destinos.push_back(auxiliar);
+			}
+
+			longtud_linea -=6;
+
+		}
+
+		// pintamos el mapa
 		int index = 1;
 
 		switch (actual.orientacion)
@@ -32,12 +89,12 @@ Action ComportamientoJugador::think(Sensores sensores)
 		case norte:
 			for (int f = 1; f <= 3; f++)
 			{
-			for (int c = -f; c <= f; c++)
-			{
-				mapaResultado[actual.fila - f][actual.columna + c] = sensores.terreno[index];
-				index++;
-			}
-			}
+				for (int c = -f; c <= f; c++)
+				{
+					mapaResultado[actual.fila - f][actual.columna + c] = sensores.terreno[index];
+					index++;
+				}
+				}
 			break;
 		case noreste:
 			mapaResultado[actual.fila - 1][ actual.columna] = sensores.terreno[1];
@@ -61,11 +118,11 @@ Action ComportamientoJugador::think(Sensores sensores)
 		case este:
 			for (int c = 1; c <= 3; c++)
 			{
-			for (int f = -c; f <= c; f++)
-			{
-				mapaResultado[actual.fila + f][actual.columna + c] = sensores.terreno[index];
-				index++;
-			}
+				for (int f = -c; f <= c; f++)
+				{
+					mapaResultado[actual.fila + f][actual.columna + c] = sensores.terreno[index];
+					index++;
+				}
 			}
 			break;
 		case sureste:
@@ -91,11 +148,11 @@ Action ComportamientoJugador::think(Sensores sensores)
 		case sur:
 			for (int f = 1; f <= 3; f++)
 			{
-			for (int c = -f; c <= f; c++)
-			{
-				mapaResultado[actual.fila + f][actual.columna - c] = sensores.terreno[index];
-				index++;
-			}
+				for (int c = -f; c <= f; c++)
+				{
+					mapaResultado[actual.fila + f][actual.columna - c] = sensores.terreno[index];
+					index++;
+				}
 			}
 			break;
 		case suroeste:
@@ -121,11 +178,11 @@ Action ComportamientoJugador::think(Sensores sensores)
 		case oeste:
 			for (int c = 1; c <= 3; c++)
 			{
-			for (int f = -c; f <= c; f++)
-			{
-				mapaResultado[actual.fila - f][actual.columna - c] = sensores.terreno[index];
-				index++;
-			}
+				for (int f = -c; f <= c; f++)
+				{
+					mapaResultado[actual.fila - f][actual.columna - c] = sensores.terreno[index];
+					index++;
+				}
 			}
 			break;
 		case noroeste:
@@ -147,6 +204,15 @@ Action ComportamientoJugador::think(Sensores sensores)
 			mapaResultado[actual.fila - 3][actual.columna - 1] =sensores.terreno[14];
 			mapaResultado[actual.fila - 3][actual.columna] =sensores.terreno[15];
 			break;
+		}
+
+		//comprobamos si hemos visto alguna casilla de bikini o zapatillas
+		for(int i=0;i<sensores.terreno.size();i++)
+		{
+			if(sensores.terreno[i] == 'K')
+				casilla_bikini = true;
+			if(sensores.terreno[i] == 'D')
+				casilla_zapatillas = true;
 		}
 
 

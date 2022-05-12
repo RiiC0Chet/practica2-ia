@@ -87,12 +87,16 @@ class ComportamientoJugador : public Comportamiento {
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de Estado
       hay_plan = false;
+      casilla_zapatillas = false;
+      casilla_bikini = false;
       //bikini = false;
       //zapatillas = false;
     }
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hay_plan = false;
+      casilla_zapatillas = false;
+      casilla_bikini = false;
       //bikini = false;
       //zapatillas = false;
     }
@@ -110,7 +114,9 @@ class ComportamientoJugador : public Comportamiento {
     list<estado> objetivos;
     list<Action> plan;
 
-    bool hay_plan; // comprobamos si hay plan establecido
+    bool hay_plan, // comprobamos si hay plan establecido
+        casilla_zapatillas, // comprbamos si hemos visto casilla de zapatillas
+        casilla_bikini; // comprbamos si hemos visto casilla de bikini
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
