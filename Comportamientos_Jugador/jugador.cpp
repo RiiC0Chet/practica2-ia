@@ -31,57 +31,28 @@ Action ComportamientoJugador::think(Sensores sensores)
 			//variables auxiliares para los destinos
 			estado auxiliar;
 
-			auxiliar.fila = 0;
-			auxiliar.columna = 0;
-			auxiliar.orientacion = 2;
-
-
-			int longtud_linea= mapaResultado.size() -6; // de esta manera eliminamos los margenes
-
-			//insertamos los destinos comiendo desde fuera hacia a dentro dejando huecos de 3 en 3
-
-			for(int i=0;i<(mapaResultado.size()/3);i++)
+			for(int i=3;i<mapaResultado.size()-3;i++)
 			{
-				//avanzamos hacia adentro
-				auxiliar.fila+=3;
-				auxiliar.columna+=3;
-
-				//primer for para rellenar horizontalmente
-				for(int j=0;j<longtud_linea;j++)
+				for(int j=3;j<mapaResultado.size()-3;j++)
 				{
-					auxiliar.columna++;
+					auxiliar.fila = i;
+					auxiliar.columna = j;
 					destinos.push_back(auxiliar);
 				}
-
-				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-				//segundo for para rellenar  vertical
-				for(int j=0;j<(mapaResultado.size()/3);j++)
-				{
-					auxiliar.fila++;
-					destinos.push_back(auxiliar);
-				}
-
-				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-				//segundo for para rellenar horizontalmente
-				for(int j=0;j<(mapaResultado.size()/3);j++)
-				{
-					auxiliar.columna++;
-					destinos.push_back(auxiliar);
-				}
-
-				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-				//segundo for para rellenar  vertical
-				for(int j=0;j<(mapaResultado.size()/3);j++)
-				{
-					auxiliar.fila++;
-					destinos.push_back(auxiliar);
-				}
-
-				longtud_linea -=6;
-
 			}
-
+			
 			hay_destinos = true;
+		}
+		
+
+		// imprimimos los destinos a ver
+		int i = 0;
+		for (auto it = destinos.begin() ;it != destinos.end(); ++it) 
+		{
+    		cout<<"Destino :"<<i<<endl;
+			cout<<it->fila<<","<<it->columna;
+			cout<<endl;
+			i++;
 		}
 
 		// pintamos el mapa
@@ -220,33 +191,97 @@ Action ComportamientoJugador::think(Sensores sensores)
 
 		// empezamos con la planificacion
 
-		// Capturo los destinos
-		cout << "Numero de destinos : " << destinos.size() << endl;
-
-		//comprobamos si hemos llegado ya al destino de arriba de la cola
-		if( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front()))
+		// comprobamos si tenemos bikini o zapatillas
+		if(sensores.terreno[0] == 'A')
+		{
+			tengo_bikini = true;
+			tengo_zapatillas = false;
+		}
+		else if(sensores.terreno[0] == 'B')
+		{
+			tengo_zapatillas = true;
+			tengo_bikini = false;
+		}
+			
+		//comprobamos si ya hemps visto ese destino o no
+		if(mapaResultado[destinos.front().fila][destinos.front().columna] != '?')
 		{
 			hay_plan = false;
 			destinos.pop_front();
 		}
 
+
+		// Capturo los destinos
+		cout << "Numero de destinos : " << destinos.size() << endl;
+		
+		cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<primer_obstaculo<<endl;
+		// comprobamos si es la primera vez que encontramos agua o bosque para saltarlo para poder
+		//contabilizar el coste de atravesarlo 
+		if( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) )
+		{
+			hay_plan = false;
+			//destinos.pop_front();
+
+			primer_obstaculo = false;
+		}
+
+		cout<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "<<destinos.size()<<endl;
+		if(!primer_obstaculo && !(mapaResultado[destinos.front().fila][destinos.front().columna] == 'A'|| mapaResultado[destinos.front().fila][destinos.front().columna] == 'B'))
+			primer_obstaculo = true;
+
+
+		cout<<"tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"<<endl;
+		//comprobamos si hemos llegado ya al destino de arriba de la cola o no es visitable
+		if( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front()))
+		{
+			hay_plan = false;
+			destinos.pop_front();
+		}
+		cout<<"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"<<endl;
 		//comprobamos si hay obstaculo delante o si es visitable
-		cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<sensores.terreno[2]<<esVisitable(sensores.terreno[2])<<endl;
+		//cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<sensores.terreno[2]<<esVisitable(sensores.terreno[2])<<endl;
 		if(!esVisitable(sensores.terreno[2]))
 		{	
 			hay_plan = false;
 			//destinos.pop_front();
 		}
 			
-
-		if (!hay_plan)
-			hay_plan = pathFinding(sensores.nivel, actual, destinos, plan);
-
-		if (hay_plan && plan.size() > 0)
-		{
-			accion = plan.front();
-			plan.pop_front();
+		if(!esVisitable(sensores.terreno[6]))
+		{	
+			hay_plan = false;
+			//destinos.pop_front();
 		}
+
+		//comprobamos que haya destinos
+		if(destinos.size() > 0)
+		{
+			actual.zapatillas = tengo_zapatillas;
+			actual.bikini = tengo_bikini;
+
+			if (!hay_plan)
+			{	
+				// calculamos que no se haya intentado calcular el plan masd e 7 veces por nodo
+				if(num_intentos == 0)
+					ultimo = destinos.front();
+				else if(num_intentos > 7)
+				{
+					destinos.pop_front();
+					num_intentos = 0;
+				}
+				num_intentos++;
+				hay_plan = pathFinding(sensores.nivel, actual, destinos, plan);
+			}
+			
+
+			if (hay_plan && plan.size() > 0)
+			{
+				accion = plan.front();
+				plan.pop_front();
+			}
+		}
+		else
+			hay_destinos = false;
+		
 
 	}
 
@@ -266,10 +301,13 @@ Action ComportamientoJugador::think(Sensores sensores)
 		if (!hay_plan)
 			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 
-		if (hay_plan && plan.size() > 0)
+		else if (hay_plan && plan.size() > 0)
 		{
 			accion = plan.front();
 			plan.pop_front();
+
+			if(destinos.size() < 1)
+				hay_destinos = false;
 		}
 	}
 

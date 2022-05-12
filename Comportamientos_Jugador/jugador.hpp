@@ -90,6 +90,10 @@ class ComportamientoJugador : public Comportamiento {
       casilla_zapatillas = false;
       casilla_bikini = false;
       hay_destinos = false;
+      primer_obstaculo = true;
+      tengo_bikini = false;
+      tengo_zapatillas = false;
+      num_intentos = 0;
       //bikini = false;
       //zapatillas = false;
     }
@@ -99,6 +103,10 @@ class ComportamientoJugador : public Comportamiento {
       casilla_zapatillas = false;
       casilla_bikini = false;
       hay_destinos = false;
+      primer_obstaculo = true;
+      tengo_bikini = false;
+      tengo_zapatillas = false;
+      num_intentos = 0;
       //bikini = false;
       //zapatillas = false;
     }
@@ -121,10 +129,17 @@ class ComportamientoJugador : public Comportamiento {
     list<Action> plan;
     list<estado> destinos;
 
+    estado ultimo; // ultimo estado que se ha calculado el plan
+
+    int num_intentos; // numero de intentos por estado repetido
+
     bool hay_plan, // comprobamos si hay plan establecido
          hay_destinos, // comprbamos si tenemos los detinos hechos
         casilla_zapatillas, // comprbamos si hemos visto casilla de zapatillas
-        casilla_bikini; // comprbamos si hemos visto casilla de bikini
+        casilla_bikini, // comprbamos si hemos visto casilla de bikini
+        primer_obstaculo, // comprobamos si es el primer obstaculo (agua o bosque)
+        tengo_bikini,
+        tengo_zapatillas;
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
