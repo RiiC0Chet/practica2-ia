@@ -108,6 +108,10 @@ class ComportamientoJugador : public Comportamiento {
     void VisualizaPlan(const estado &st, const list<Action> &plan);
     ComportamientoJugador * clone(){return new ComportamientoJugador(*this);}
 
+    // comprobamos si un extado es visitable o no
+    bool esVisitable(estado & posicion);
+    bool esVisitable(const char Casilla);
+
   private:
     // Declarar Variables de Estado
     estado actual;

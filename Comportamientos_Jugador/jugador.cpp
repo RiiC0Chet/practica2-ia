@@ -34,11 +34,10 @@ Action ComportamientoJugador::think(Sensores sensores)
 		auxiliar.columna = 0;
 		auxiliar.orientacion = 2;
 
-		destinos.push_back(auxiliar);
 
 		int longtud_linea= mapaResultado.size() -6; // de esta manera eliminamos los margenes
 
-		//insertamos los destinos
+		//insertamos los destinos comiendo desde fuera hacia a dentro dejando huecos de 3 en 3
 
 		for(int i=0;i<(mapaResultado.size()/3);i++)
 		{
@@ -215,28 +214,69 @@ Action ComportamientoJugador::think(Sensores sensores)
 				casilla_zapatillas = true;
 		}
 
+		// empezamos con la planificacion
+
+		// Capturo los destinos
+		cout << "Numero de destinos : " << destinos.size() << endl;
+		objetivos.clear();
+		for (int i = 0; i < sensores.num_destinos; i++)
+		{
+			estado aux;
+			aux.fila = sensores.destino[2 * i];
+			aux.columna = sensores.destino[2 * i + 1];
+			objetivos.push_back(aux);
+		}
+
+		//comprobamos si hemos llegado ya al destino de arriba de la cola
+		if( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front()))
+		{
+			hay_plan = false;
+			destinos.pop_front();
+		}
+
+		//comprobamos si hay obstaculo delante o si es visitable
+		if(HayObstaculoDelante(actual) || !esVisitable(sensores.terreno[2]))
+			hay_plan = false;
+
+		if (!hay_plan)
+			hay_plan = pathFinding(sensores.nivel, actual, destinos, plan);
+
+		if (hay_plan && plan.size() > 0)
+		{
+			accion = plan.front();
+			plan.pop_front();
+		}
 
 	}
 
-	// Capturo los destinos
-	cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
-	objetivos.clear();
-	for (int i = 0; i < sensores.num_destinos; i++)
+	if(sensores.nivel != 3 && sensores.nivel != 4)
 	{
-		estado aux;
-		aux.fila = sensores.destino[2 * i];
-		aux.columna = sensores.destino[2 * i + 1];
-		objetivos.push_back(aux);
+			// Capturo los destinos
+		cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
+		objetivos.clear();
+		for (int i = 0; i < sensores.num_destinos; i++)
+		{
+			estado aux;
+			aux.fila = sensores.destino[2 * i];
+			aux.columna = sensores.destino[2 * i + 1];
+			objetivos.push_back(aux);
+		}
+
+		if (!hay_plan)
+			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+
+		if (hay_plan && plan.size() > 0)
+		{
+			accion = plan.front();
+			plan.pop_front();
+		}
 	}
 
-	if (!hay_plan)
-		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+	
+		
+	
 
-	if (hay_plan && plan.size() > 0)
-	{
-		accion = plan.front();
-		plan.pop_front();
-	}
+	
 
 	return accion;
 }
@@ -920,4 +960,35 @@ void ComportamientoJugador::VisualizaPlan(const estado &st, const list<Action> &
 int ComportamientoJugador::interact(Action accion, int valor)
 {
 	return false;
+}
+
+// con esta funcion comprobamos si una posicion es visitable
+// teniendo en cuenta si hemos visto anteriormente una casilla de bikini o de zapatillas
+bool ComportamientoJugador::esVisitable(estado & posicion)
+{
+	if(mapaResultado[posicion.fila][posicion.columna] == 'M' || mapaResultado[posicion.fila][posicion.columna] == 'P')
+		return false;
+	
+	if(!casilla_bikini && mapaResultado[posicion.fila][posicion.columna] == 'A')
+		return false;
+
+	if(!casilla_zapatillas && mapaResultado[posicion.fila][posicion.columna] == 'B')
+		return false;
+
+	return true;
+}
+
+// sobrecarga del de arriba
+bool ComportamientoJugador::esVisitable(const char Casilla)
+{
+	if(Casilla == 'M' || Casilla == 'P')
+		return false;
+	
+	if(!casilla_bikini &&Casilla == 'A')
+		return false;
+
+	if(!casilla_zapatillas && Casilla == 'B')
+		return false;
+
+	return true;
 }
