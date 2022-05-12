@@ -25,59 +25,63 @@ Action ComportamientoJugador::think(Sensores sensores)
 	//pintamos el mapa si estamos en el nivel 3 y 4
 	if(sensores.nivel == 3 || sensores.nivel == 4 )
 	{
-		list<estado> destinos;
-
-		//variables auxiliares para los destinos
-		estado auxiliar;
-
-		auxiliar.fila = 0;
-		auxiliar.columna = 0;
-		auxiliar.orientacion = 2;
-
-
-		int longtud_linea= mapaResultado.size() -6; // de esta manera eliminamos los margenes
-
-		//insertamos los destinos comiendo desde fuera hacia a dentro dejando huecos de 3 en 3
-
-		for(int i=0;i<(mapaResultado.size()/3);i++)
+		if(!hay_destinos)
 		{
-			//avanzamos hacia adentro
-			auxiliar.fila+=3;
-			auxiliar.columna+=3;
+			//destinos.clear();
+			//variables auxiliares para los destinos
+			estado auxiliar;
 
-			//primer for para rellenar horizontalmente
-			for(int j=0;j<longtud_linea;j++)
+			auxiliar.fila = 0;
+			auxiliar.columna = 0;
+			auxiliar.orientacion = 2;
+
+
+			int longtud_linea= mapaResultado.size() -6; // de esta manera eliminamos los margenes
+
+			//insertamos los destinos comiendo desde fuera hacia a dentro dejando huecos de 3 en 3
+
+			for(int i=0;i<(mapaResultado.size()/3);i++)
 			{
-				auxiliar.columna++;
-				destinos.push_back(auxiliar);
+				//avanzamos hacia adentro
+				auxiliar.fila+=3;
+				auxiliar.columna+=3;
+
+				//primer for para rellenar horizontalmente
+				for(int j=0;j<longtud_linea;j++)
+				{
+					auxiliar.columna++;
+					destinos.push_back(auxiliar);
+				}
+
+				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+				//segundo for para rellenar  vertical
+				for(int j=0;j<(mapaResultado.size()/3);j++)
+				{
+					auxiliar.fila++;
+					destinos.push_back(auxiliar);
+				}
+
+				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+				//segundo for para rellenar horizontalmente
+				for(int j=0;j<(mapaResultado.size()/3);j++)
+				{
+					auxiliar.columna++;
+					destinos.push_back(auxiliar);
+				}
+
+				auxiliar.orientacion = (auxiliar.orientacion+2)%8;
+				//segundo for para rellenar  vertical
+				for(int j=0;j<(mapaResultado.size()/3);j++)
+				{
+					auxiliar.fila++;
+					destinos.push_back(auxiliar);
+				}
+
+				longtud_linea -=6;
+
 			}
 
-			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-			//segundo for para rellenar  vertical
-			for(int j=0;j<(mapaResultado.size()/3);j++)
-			{
-				auxiliar.fila++;
-				destinos.push_back(auxiliar);
-			}
-
-			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-			//segundo for para rellenar horizontalmente
-			for(int j=0;j<(mapaResultado.size()/3);j++)
-			{
-				auxiliar.columna++;
-				destinos.push_back(auxiliar);
-			}
-
-			auxiliar.orientacion = (auxiliar.orientacion+2)%8;
-			//segundo for para rellenar  vertical
-			for(int j=0;j<(mapaResultado.size()/3);j++)
-			{
-				auxiliar.fila++;
-				destinos.push_back(auxiliar);
-			}
-
-			longtud_linea -=6;
-
+			hay_destinos = true;
 		}
 
 		// pintamos el mapa
@@ -218,14 +222,6 @@ Action ComportamientoJugador::think(Sensores sensores)
 
 		// Capturo los destinos
 		cout << "Numero de destinos : " << destinos.size() << endl;
-		objetivos.clear();
-		for (int i = 0; i < sensores.num_destinos; i++)
-		{
-			estado aux;
-			aux.fila = sensores.destino[2 * i];
-			aux.columna = sensores.destino[2 * i + 1];
-			objetivos.push_back(aux);
-		}
 
 		//comprobamos si hemos llegado ya al destino de arriba de la cola
 		if( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front()))
@@ -235,8 +231,13 @@ Action ComportamientoJugador::think(Sensores sensores)
 		}
 
 		//comprobamos si hay obstaculo delante o si es visitable
-		if(HayObstaculoDelante(actual) || !esVisitable(sensores.terreno[2]))
+		cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<sensores.terreno[2]<<esVisitable(sensores.terreno[2])<<endl;
+		if(!esVisitable(sensores.terreno[2]))
+		{	
 			hay_plan = false;
+			//destinos.pop_front();
+		}
+			
 
 		if (!hay_plan)
 			hay_plan = pathFinding(sensores.nivel, actual, destinos, plan);
@@ -317,8 +318,8 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 	case 3:
 		cout << "Reto 1: Descubrir el mapa\n";
 		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 1
-		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
-		return pathFinding_AStar(origen, un_objetivo, plan);
+		cout << "fila: " << destino.front().fila << " col:" << destino.front().columna << endl;
+		return pathFinding_AStar(origen, destino.front(), plan);
 		cout << "No implementado aun\n";
 		break;
 	case 4:

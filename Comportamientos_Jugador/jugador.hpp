@@ -89,6 +89,7 @@ class ComportamientoJugador : public Comportamiento {
       hay_plan = false;
       casilla_zapatillas = false;
       casilla_bikini = false;
+      hay_destinos = false;
       //bikini = false;
       //zapatillas = false;
     }
@@ -97,6 +98,7 @@ class ComportamientoJugador : public Comportamiento {
       hay_plan = false;
       casilla_zapatillas = false;
       casilla_bikini = false;
+      hay_destinos = false;
       //bikini = false;
       //zapatillas = false;
     }
@@ -117,8 +119,10 @@ class ComportamientoJugador : public Comportamiento {
     estado actual;
     list<estado> objetivos;
     list<Action> plan;
+    list<estado> destinos;
 
     bool hay_plan, // comprobamos si hay plan establecido
+         hay_destinos, // comprbamos si tenemos los detinos hechos
         casilla_zapatillas, // comprbamos si hemos visto casilla de zapatillas
         casilla_bikini; // comprbamos si hemos visto casilla de bikini
 
