@@ -118,6 +118,7 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan);
 
+
     // distancia Chebyshev teniendo en cuenta las diagonales
     inline int ChebyshevDistance(nodoA& uno, nodoA& dos)
     {

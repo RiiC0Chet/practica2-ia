@@ -22,6 +22,131 @@ Action ComportamientoJugador::think(Sensores sensores)
 	cout << "Col : " << actual.columna << endl;
 	cout << "Ori : " << actual.orientacion << endl;
 
+	//pintamos el mapa
+	int index = 1;
+
+	switch (actual.orientacion)
+    {
+    case norte:
+      for (int f = 1; f <= 3; f++)
+      {
+        for (int c = -f; c <= f; c++)
+        {
+           mapaResultado[actual.fila - f][actual.columna + c] = sensores.terreno[index];
+           index++;
+        }
+      }
+      break;
+    case noreste:
+        mapaResultado[actual.fila - 1][ actual.columna] = sensores.terreno[1];
+        mapaResultado[actual.fila - 1][actual.columna + 1] = sensores.terreno[2];
+        mapaResultado[actual.fila][actual.columna + 1] = sensores.terreno[3];
+
+        mapaResultado[actual.fila - 2][actual.columna] = sensores.terreno[4];
+        mapaResultado[actual.fila - 2][actual.columna + 1] = sensores.terreno[5];
+        mapaResultado[actual.fila - 2][actual.columna + 2] = sensores.terreno[6];
+        mapaResultado[actual.fila - 1][actual.columna + 2] = sensores.terreno[7];
+        mapaResultado[actual.fila][actual.columna + 2] = sensores.terreno[8];
+
+        mapaResultado[actual.fila - 3][actual.columna] = sensores.terreno[9];
+        mapaResultado[actual.fila - 3][actual.columna + 1] =sensores.terreno[10];
+        mapaResultado[actual.fila - 3][actual.columna + 2] =sensores.terreno[11];
+        mapaResultado[actual.fila - 3][actual.columna + 3] =sensores.terreno[12];
+        mapaResultado[actual.fila - 2][actual.columna + 3] =sensores.terreno[13];
+        mapaResultado[actual.fila - 1][actual.columna + 3] =sensores.terreno[14];
+        mapaResultado[actual.fila][actual.columna + 3] =sensores.terreno[15];
+      break;
+    case este:
+      for (int c = 1; c <= 3; c++)
+      {
+        for (int f = -c; f <= c; f++)
+        {
+           mapaResultado[actual.fila + f][actual.columna + c] = sensores.terreno[index];
+           index++;
+        }
+      }
+      break;
+    case sureste:
+        mapaResultado[actual.fila][actual.columna + 1] =sensores.terreno[1];
+        mapaResultado[actual.fila + 1][actual.columna + 1] =sensores.terreno[2];
+        mapaResultado[actual.fila + 1][actual.columna] =sensores.terreno[3];
+
+        mapaResultado[actual.fila][actual.columna + 2] =sensores.terreno[4];
+        mapaResultado[actual.fila + 1][actual.columna + 2] =sensores.terreno[5];
+        mapaResultado[actual.fila + 2][actual.columna + 2] =sensores.terreno[6];
+        mapaResultado[actual.fila + 2][actual.columna + 1] =sensores.terreno[7];
+        mapaResultado[actual.fila + 2][actual.columna] =sensores.terreno[8];
+
+        mapaResultado[actual.fila][actual.columna + 3] =sensores.terreno[9];
+        mapaResultado[actual.fila + 1][actual.columna + 3] =sensores.terreno[10];
+        mapaResultado[actual.fila + 2][actual.columna + 3] =sensores.terreno[11];
+        mapaResultado[actual.fila + 3][actual.columna + 3] =sensores.terreno[12];
+        mapaResultado[actual.fila + 3][actual.columna + 2] =sensores.terreno[13];
+        mapaResultado[actual.fila + 3][actual.columna + 1] =sensores.terreno[14];
+        mapaResultado[actual.fila + 3][actual.columna] =sensores.terreno[15];
+
+      break;
+    case sur:
+      for (int f = 1; f <= 3; f++)
+      {
+        for (int c = -f; c <= f; c++)
+        {
+          mapaResultado[actual.fila + f][actual.columna - c] = sensores.terreno[index];
+          index++;
+        }
+      }
+      break;
+    case suroeste:
+        mapaResultado[actual.fila + 1][actual.columna] =sensores.terreno[1];
+        mapaResultado[actual.fila + 1][actual.columna - 1] =sensores.terreno[2];
+        mapaResultado[actual.fila][actual.columna - 1] =sensores.terreno[3];
+
+        mapaResultado[actual.fila + 2][actual.columna] =sensores.terreno[4];
+        mapaResultado[actual.fila + 2][actual.columna - 1] =sensores.terreno[5];
+        mapaResultado[actual.fila + 2][actual.columna - 2] =sensores.terreno[6];
+        mapaResultado[actual.fila + 1][actual.columna - 2] =sensores.terreno[7];
+        mapaResultado[actual.fila][actual.columna - 2] =sensores.terreno[8];
+
+        mapaResultado[actual.fila + 3][actual.columna] =sensores.terreno[9];
+        mapaResultado[actual.fila + 3][actual.columna - 1] =sensores.terreno[10];
+        mapaResultado[actual.fila + 3][actual.columna - 2] =sensores.terreno[11];
+        mapaResultado[actual.fila + 3][actual.columna - 3] =sensores.terreno[12];
+        mapaResultado[actual.fila + 2][actual.columna - 3] =sensores.terreno[13];
+        mapaResultado[actual.fila + 1][actual.columna - 3] =sensores.terreno[14];
+        mapaResultado[actual.fila][actual.columna - 3] =sensores.terreno[15];
+
+      break;
+    case oeste:
+      for (int c = 1; c <= 3; c++)
+      {
+        for (int f = -c; f <= c; f++)
+        {
+          mapaResultado[actual.fila - f][actual.columna - c] = sensores.terreno[index];
+          index++;
+        }
+      }
+      break;
+    case noroeste:
+        mapaResultado[actual.fila][actual.columna - 1] = sensores.terreno[1];
+        mapaResultado[actual.fila - 1][actual.columna - 1] =sensores.terreno[2];
+        mapaResultado[actual.fila - 1][actual.columna] =sensores.terreno[3];
+
+        mapaResultado[actual.fila][actual.columna - 2] =sensores.terreno[4];
+        mapaResultado[actual.fila - 1][actual.columna - 2] =sensores.terreno[5];
+        mapaResultado[actual.fila - 2][actual.columna - 2] =sensores.terreno[6];
+        mapaResultado[actual.fila - 2][actual.columna - 1] =sensores.terreno[7];
+        mapaResultado[actual.fila - 2][actual.columna] =sensores.terreno[8];
+
+        mapaResultado[actual.fila][actual.columna - 3] =sensores.terreno[9];
+        mapaResultado[actual.fila - 1][actual.columna - 3] =sensores.terreno[10];
+        mapaResultado[actual.fila - 2][actual.columna - 3] =sensores.terreno[11];
+        mapaResultado[actual.fila - 3][actual.columna - 3] =sensores.terreno[12];
+        mapaResultado[actual.fila - 3][actual.columna - 2] =sensores.terreno[13];
+        mapaResultado[actual.fila - 3][actual.columna - 1] =sensores.terreno[14];
+        mapaResultado[actual.fila - 3][actual.columna] =sensores.terreno[15];
+      break;
+    }
+
 	// Capturo los destinos
 	cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
 	objetivos.clear();
