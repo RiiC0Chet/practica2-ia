@@ -93,6 +93,7 @@ class ComportamientoJugador : public Comportamiento {
       primer_obstaculo = true;
       tengo_bikini = false;
       tengo_zapatillas = false;
+      primera_creacion_destinos = true;
       num_intentos = 0;
       //bikini = false;
       //zapatillas = false;
@@ -106,6 +107,7 @@ class ComportamientoJugador : public Comportamiento {
       primer_obstaculo = true;
       tengo_bikini = false;
       tengo_zapatillas = false;
+      primera_creacion_destinos = true;
       num_intentos = 0;
       //bikini = false;
       //zapatillas = false;
@@ -139,7 +141,8 @@ class ComportamientoJugador : public Comportamiento {
         casilla_bikini, // comprbamos si hemos visto casilla de bikini
         primer_obstaculo, // comprobamos si es el primer obstaculo (agua o bosque)
         tengo_bikini,
-        tengo_zapatillas;
+        tengo_zapatillas,
+        primera_creacion_destinos;
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
