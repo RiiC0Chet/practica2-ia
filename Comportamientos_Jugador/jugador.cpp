@@ -299,7 +299,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 				// calculamos que no se haya intentado calcular el plan masd e 7 veces por nodo
 				if(num_intentos == 0)
 					ultimo = destinos.front();
-				else if(num_intentos > 2 && !esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD)
+				else if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD)
 				{
 					destinos.pop_front();
 					num_intentos = 0;
@@ -794,7 +794,17 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				costeTURN = 2;
 				costeSEMITURN = 1;
 				break;
+			case 'M':
+				costeF = 2000;
+				costeTURN = 2000;
+				costeSEMITURN = 1000;
+				break;
 
+			case 'P':
+				costeF = 2000;
+				costeTURN = 2000;
+				costeSEMITURN = 1000;
+				break;
 			default:
 				costeF = 1;
 				costeTURN = 1;

@@ -163,6 +163,18 @@ class ComportamientoJugador : public Comportamiento {
       return abs(uno.actual.st.fila-dos.fila) > abs(uno.actual.st.columna-dos.columna) ? abs(uno.actual.st.fila-dos.fila) : abs(uno.actual.st.columna-dos.columna);
     }
 
+    // distancia manhattan
+    inline int ManhattanDistance(nodoA& uno, const estado& dos)
+    {
+      return abs(uno.actual.st.fila-dos.fila) + abs(uno.actual.st.columna-dos.columna);
+    }
+
+
+    // sobrecarga distancia manhattan
+    inline int ManhattanDistance(nodoA& uno, nodoA& dos)
+    {
+      return abs(uno.actual.st.fila-dos.actual.st.fila) + abs(uno.actual.st.columna-dos.actual.st.columna);
+    }
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
 
