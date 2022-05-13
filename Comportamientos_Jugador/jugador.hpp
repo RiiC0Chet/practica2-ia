@@ -148,7 +148,8 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
-    bool pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan);
+    bool pathFinding_AStarM(const estado &origen, const estado &destino, list<Action> &plan);
+    bool pathFinding_AStarC(const estado &origen, const estado &destino, list<Action> &plan);
 
 
     // distancia Chebyshev teniendo en cuenta las diagonales
