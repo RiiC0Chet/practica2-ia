@@ -54,10 +54,10 @@ Action ComportamientoJugador::think(Sensores sensores)
 			}
 			else
 			{
-				for(int i=1;i<mapaResultado.size()-1;i++)
+				for(int i=3;i<mapaResultado.size()-3;i++)
 				{
 					// de izquierda a derecha
-					for(int j=1;j<mapaResultado.size()-1;j++)
+					for(int j=3;j<mapaResultado.size()-3;j++)
 					{
 						auxiliar.fila = i;
 						auxiliar.columna = j;
@@ -66,7 +66,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 
 					i=i+3;
 					// de derecha a izquierda
-					for(int j=mapaResultado.size()-1;j>1;j--)
+					for(int j=mapaResultado.size()-3;j>3;j--)
 					{
 						auxiliar.fila = i;
 						auxiliar.columna = j;
