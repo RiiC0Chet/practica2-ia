@@ -82,6 +82,22 @@ public:
   }
 };
 
+
+
+
+    // sobrecarga distancia Chebyshev teniendo en cuenta las diagonales
+    inline int ChebyshevDistance(nodoA& uno, const estado& dos)
+    {
+      return abs(uno.actual.st.fila-dos.fila) > abs(uno.actual.st.columna-dos.columna) ? abs(uno.actual.st.fila-dos.fila) : abs(uno.actual.st.columna-dos.columna);
+    }
+
+    // distancia manhattan
+    inline int ManhattanDistance(nodoA& uno, const estado& dos)
+    {
+      return abs(uno.actual.st.fila-dos.fila) + abs(uno.actual.st.columna-dos.columna);
+    }
+
+
 class ComportamientoJugador : public Comportamiento {
   public:
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
@@ -148,34 +164,10 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
-    bool pathFinding_AStarM(const estado &origen, const estado &destino, list<Action> &plan);
-    bool pathFinding_AStarC(const estado &origen, const estado &destino, list<Action> &plan);
+    bool pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos));
 
 
-    // distancia Chebyshev teniendo en cuenta las diagonales
-    inline int ChebyshevDistance(nodoA& uno, nodoA& dos)
-    {
-      return abs(uno.actual.st.fila-dos.actual.st.fila) > abs(uno.actual.st.columna-dos.actual.st.columna) ? abs(uno.actual.st.fila-dos.actual.st.fila) : abs(uno.actual.st.columna-dos.actual.st.columna);
-    }
-
-    // sobrecarga distancia Chebyshev teniendo en cuenta las diagonales
-    inline int ChebyshevDistance(nodoA& uno, const estado& dos)
-    {
-      return abs(uno.actual.st.fila-dos.fila) > abs(uno.actual.st.columna-dos.columna) ? abs(uno.actual.st.fila-dos.fila) : abs(uno.actual.st.columna-dos.columna);
-    }
-
-    // distancia manhattan
-    inline int ManhattanDistance(nodoA& uno, const estado& dos)
-    {
-      return abs(uno.actual.st.fila-dos.fila) + abs(uno.actual.st.columna-dos.columna);
-    }
-
-
-    // sobrecarga distancia manhattan
-    inline int ManhattanDistance(nodoA& uno, nodoA& dos)
-    {
-      return abs(uno.actual.st.fila-dos.actual.st.fila) + abs(uno.actual.st.columna-dos.actual.st.columna);
-    }
+    
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
 
