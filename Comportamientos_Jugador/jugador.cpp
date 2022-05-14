@@ -726,7 +726,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 // Implementación de la busqueda A* con functores
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
-bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos))
+bool ComportamientoJugador::pathFinding_AStar(const estado &origen, list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos))
 {
 	// Borro la lista
 	cout << "Calculando plan\n";
@@ -738,17 +738,19 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 	current.actual.st = origen;
 	current.actual.secuencia.empty();
 
-	// current.padre = nullptr;
-	current.g = 0;
-	current.f = 0;
-	current.h = ptr_func(current, destino);
+	for(auto it = destino.begin(); it != destino.end() ;it++)
+	{
+		current.g = 0;
+		current.f = 0;
+		current.h = ptr_func(current, *it);
 
-	Abiertos.push(current);
+		Abiertos.push(current);
+	}
+	
 
 	// coste asociado a la transicion por nodos
 	int costeF, costeTURN, costeSEMITURN;
-
-	while (!Abiertos.empty() and (current.actual.st.fila != destino.fila or current.actual.st.columna != destino.columna))
+	while (!Abiertos.empty() and current.h == 0)
 	{
 
 		Abiertos.pop();
@@ -812,107 +814,111 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 				break;
 			}
 
+			std::unordered_map<estado, nodoA, MyHash<estado>>::iterator iterator; // creamos el iterator 
 			// Generar descendiente de girar a la derecha 90 grados
-			nodoA hijoTurnR = current;
-			hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
-
-			hijoTurnR.actual.secuencia.push_back(actTURN_R);
-
-			hijoTurnR.g = current.g + costeTURN;
-			hijoTurnR.h = ptr_func(hijoTurnR, destino);
-			hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
-
-			auto iterator = Cerrados.find(hijoTurnR.actual.st);
-
-			if ( iterator == Cerrados.end())
-				Abiertos.push(hijoTurnR);
-			else if ((iterator->second.g) > hijoTurnR.g)
+			for(auto it = destino.begin(); it != destino.end() ;it++)
 			{
-				Cerrados.erase(iterator);
-				Abiertos.push(hijoTurnR);
-			}
-			
+				nodoA hijoTurnR = current;
+				hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
 
-			// Generar descendiente de girar a la derecha 45 grados
-			nodoA hijoSEMITurnR = current;
-			hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
+				hijoTurnR.actual.secuencia.push_back(actTURN_R);
 
-			hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+				hijoTurnR.g = current.g + costeTURN;
+				hijoTurnR.h = ptr_func(hijoTurnR, *it);
+				hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
 
-			hijoSEMITurnR.g = current.g + costeSEMITURN;
-			hijoSEMITurnR.h = ptr_func(hijoSEMITurnR, destino);
-			hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
+				iterator = Cerrados.find(hijoTurnR.actual.st);
 
-			iterator = Cerrados.find(hijoSEMITurnR.actual.st);
-			if ( iterator == Cerrados.end())
-				Abiertos.push(hijoSEMITurnR);
-			else if ((iterator->second.g) > hijoSEMITurnR.g)
-			{
-				Cerrados.erase(iterator);
-				Abiertos.push(hijoSEMITurnR);
-			}
-			
-
-			// Generar descendiente de girar a la izquierda 90 grados
-			nodoA hijoTurnL = current;
-			hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
-			hijoTurnL.actual.secuencia.push_back(actTURN_L);
-
-			hijoTurnL.g = current.g + costeTURN;
-			hijoTurnL.h = ptr_func(hijoTurnL, destino);
-			hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
-			
-			iterator = Cerrados.find(hijoTurnL.actual.st);
-			if ( iterator == Cerrados.end())
-			{
-				Abiertos.push(hijoTurnL);
-			}
-			else if ((iterator->second.g) > hijoTurnL.g)
-			{
-				Cerrados.erase(iterator);
-				Abiertos.push(hijoTurnL);
-			}
-			
-
-			// Generar descendiente de girar a la izquierda 45 grados
-			nodoA hijoSEMITurnL = current;
-			hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
-
-			hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
-
-			hijoSEMITurnL.g = current.g + costeSEMITURN;
-			hijoSEMITurnL.h = ptr_func(hijoSEMITurnL, destino);
-			hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
-
-			iterator = Cerrados.find(hijoSEMITurnL.actual.st);
-			if ( iterator == Cerrados.end())
-				Abiertos.push(hijoSEMITurnL);
-			else if ((iterator->second.g) > hijoSEMITurnL.g)
-			{
-				Cerrados.erase(iterator);
-				Abiertos.push(hijoSEMITurnL);
-			}
-			
-
-			// Generar descendiente de avanzar
-			nodoA hijoForward = current;
-			if (!HayObstaculoDelante(hijoForward.actual.st))
-			{
-				hijoForward.actual.secuencia.push_back(actFORWARD);
-
-				hijoForward.g = current.g + costeF;
-				hijoForward.h = ptr_func(hijoForward, destino);
-				hijoForward.f = hijoForward.g + hijoForward.h;
-
-				iterator = Cerrados.find(hijoForward.actual.st);
 				if ( iterator == Cerrados.end())
-					Abiertos.push(hijoForward);
-				else if ((iterator->second.g) > hijoForward.g)
+					Abiertos.push(hijoTurnR);
+				else if ((iterator->second.g) > hijoTurnR.g)
 				{
-						Cerrados.erase(iterator);
-						Abiertos.push(hijoForward);
+					Cerrados.erase(iterator);
+					Abiertos.push(hijoTurnR);
+				}
+
+				// Generar descendiente de girar a la derecha 45 grados
+				nodoA hijoSEMITurnR = current;
+				hijoSEMITurnR.actual.st.orientacion = (hijoSEMITurnR.actual.st.orientacion + 1) % 8;
+
+				hijoSEMITurnR.actual.secuencia.push_back(actSEMITURN_R);
+
+				hijoSEMITurnR.g = current.g + costeSEMITURN;
+				hijoSEMITurnR.h = ptr_func(hijoSEMITurnR, *it);
+				hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
+
+				iterator = Cerrados.find(hijoSEMITurnR.actual.st);
+				if ( iterator == Cerrados.end())
+					Abiertos.push(hijoSEMITurnR);
+				else if ((iterator->second.g) > hijoSEMITurnR.g)
+				{
+					Cerrados.erase(iterator);
+					Abiertos.push(hijoSEMITurnR);
 				}
 				
+				
+
+				// Generar descendiente de girar a la izquierda 90 grados
+				nodoA hijoTurnL = current;
+				hijoTurnL.actual.st.orientacion = (hijoTurnL.actual.st.orientacion + 6) % 8;
+				hijoTurnL.actual.secuencia.push_back(actTURN_L);
+
+				hijoTurnL.g = current.g + costeTURN;
+				hijoTurnL.h = ptr_func(hijoTurnL, *it);
+				hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
+				
+				iterator = Cerrados.find(hijoTurnL.actual.st);
+				if ( iterator == Cerrados.end())
+				{
+					Abiertos.push(hijoTurnL);
+				}
+				else if ((iterator->second.g) > hijoTurnL.g)
+				{
+					Cerrados.erase(iterator);
+					Abiertos.push(hijoTurnL);
+				}
+				
+
+				// Generar descendiente de girar a la izquierda 45 grados
+				nodoA hijoSEMITurnL = current;
+				hijoSEMITurnL.actual.st.orientacion = (hijoSEMITurnL.actual.st.orientacion + 7) % 8;
+
+				hijoSEMITurnL.actual.secuencia.push_back(actSEMITURN_L);
+
+				hijoSEMITurnL.g = current.g + costeSEMITURN;
+				hijoSEMITurnL.h = ptr_func(hijoSEMITurnL, *it);
+				hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
+
+				iterator = Cerrados.find(hijoSEMITurnL.actual.st);
+				if ( iterator == Cerrados.end())
+					Abiertos.push(hijoSEMITurnL);
+				else if ((iterator->second.g) > hijoSEMITurnL.g)
+				{
+					Cerrados.erase(iterator);
+					Abiertos.push(hijoSEMITurnL);
+				}
+				
+
+				// Generar descendiente de avanzar
+				nodoA hijoForward = current;
+				if (!HayObstaculoDelante(hijoForward.actual.st))
+				{
+					hijoForward.actual.secuencia.push_back(actFORWARD);
+
+					hijoForward.g = current.g + costeF;
+					hijoForward.h = ptr_func(hijoForward, *it);
+					hijoForward.f = hijoForward.g + hijoForward.h;
+
+					iterator = Cerrados.find(hijoForward.actual.st);
+					if ( iterator == Cerrados.end())
+						Abiertos.push(hijoForward);
+					else if ((iterator->second.g) > hijoForward.g)
+					{
+							Cerrados.erase(iterator);
+							Abiertos.push(hijoForward);
+					}
+					
+				}
 			}
 		}
 
@@ -923,7 +929,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const estado
 
 	cout << "Terminada la busqueda. " << endl;
 
-	if (current.actual.st.fila == destino.fila and current.actual.st.columna == destino.columna)
+	if (current.h == 0)
 	{
 		cout << "Cargando el plan\n";
 		plan = current.actual.secuencia;
@@ -1064,6 +1070,7 @@ int ComportamientoJugador::interact(Action accion, int valor)
 // teniendo en cuenta si hemos visto anteriormente una casilla de bikini o de zapatillas
 bool ComportamientoJugador::esVisitable(estado & posicion)
 {
+	
 	if(mapaResultado[posicion.fila][posicion.columna] == 'M' || mapaResultado[posicion.fila][posicion.columna] == 'P')
 		return false;
 	
