@@ -164,7 +164,7 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
-    bool pathFinding_AStar(const estado &origen, list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos));
+    bool pathFinding_AStar(const estado &origen, const list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos));
 
 
     

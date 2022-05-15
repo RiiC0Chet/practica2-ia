@@ -388,7 +388,7 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		// Incluir aqui la llamada al busqueda en anchura
 		// estado un_objetivo;
 		// un_objetivo = objetivos.front();
-		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
+		cout << "fila: " << destino.front().fila << " col:" << destino.front().columna << endl;
 		return pathFinding_Anchura(origen, un_objetivo, plan);
 		cout << "No implementado aun\n";
 		break;
@@ -396,14 +396,14 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		cout << "Optimo en coste\n";
 		// Incluir aqui la llamada al busqueda de costo uniforme/A*
 		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
-		return pathFinding_AStar(origen, un_objetivo, plan,&ChebyshevDistance);
+		return pathFinding_AStar(origen, destino, plan,&ChebyshevDistance);
 		cout << "No implementado aun\n";
 		break;
 	case 3:
 		cout << "Reto 1: Descubrir el mapa\n";
 		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 1
 		cout << "fila: " << destino.front().fila << " col:" << destino.front().columna << endl;
-		return pathFinding_AStar(origen, destino.front(), plan,&ManhattanDistance);
+		return pathFinding_AStar(origen, destino, plan,&ManhattanDistance);
 		cout << "No implementado aun\n";
 		break;
 	case 4:
@@ -726,8 +726,11 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 // Implementación de la busqueda A* con functores
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
-bool ComportamientoJugador::pathFinding_AStar(const estado &origen, list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos))
+bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos))
 {
+
+	
+
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
@@ -750,7 +753,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, list <estado
 
 	// coste asociado a la transicion por nodos
 	int costeF, costeTURN, costeSEMITURN;
-	while (!Abiertos.empty() and current.h == 0)
+	while (!Abiertos.empty() and !(current.h == 0))
 	{
 
 		Abiertos.pop();
