@@ -374,7 +374,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 		// comprobamos si es la primera vez que encontramos agua o bosque para saltarlo para poder
 		//contabilizar el coste de atravesarlo 
 		cout<<"ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd "<<replanificaciones<<" "<<num_replanificaciones<<endl;
-		if(replanificaciones <num_replanificaciones)
+		if((replanificaciones <num_replanificaciones) && sensores.nivel == 4)
 		{
 			if( ( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) ) && ((encontrada != 3 && encontrada < 8) || sensores.nivel == 4) && plan.front() == actFORWARD)
 			{
@@ -402,13 +402,28 @@ Action ComportamientoJugador::think(Sensores sensores)
 					
 			}
 		}
-		
+		else if(sensores.nivel == 3)
+		{
+			if( ( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) ) && ((encontrada != 3 && encontrada < 8) ))
+			{
+				cout<<"Aqui mamon!!!!!!!!!!!!! "<<plan.size()<<endl;
+				
+					hay_plan = false;
+				
+					primer_obstaculo = false;
+				
+
+					
+
+					
+			}
+		}
 
 		//cout<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "<<destinos.size()<<" ooo "<<plan.size()<<" "<<encontrada<<endl;
 		if(!primer_obstaculo && !(mapaResultado[destinos.front().fila][destinos.front().columna] == 'A'|| mapaResultado[destinos.front().fila][destinos.front().columna] == 'B') )
 			primer_obstaculo = true;
 
-		if(replanificaciones <num_replanificaciones)
+		if((replanificaciones <num_replanificaciones) && sensores.nivel ==4)
 		{
 			if(!primer_obstaculo && !(sensores.terreno[2] == 'A'|| sensores.terreno[2] == 'B') && plan.size() == 1)
 			primer_obstaculo = true;
@@ -567,7 +582,6 @@ Action ComportamientoJugador::think(Sensores sensores)
 			actual.zapatillas = tengo_zapatillas;
 			actual.bikini = tengo_bikini;
 			
-			cout<<"---------------------------------------------------------------------------"<<endl;
 			
 			if (!hay_plan)
 			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
