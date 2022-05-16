@@ -13,396 +13,107 @@
 Action ComportamientoJugador::think(Sensores sensores)
 {
 	Action accion = actIDLE;
-	
-	if(sensores.nivel == 4)
+
+	if(sensores.nivel != 4)
 	{
-		if(hay_plan)
-			plan.push_front(actWHEREIS);
-		else
+		actual.fila = sensores.posF;
+		actual.columna = sensores.posC;
+		actual.orientacion = sensores.sentido;
+	}
+	else
+	{
+		if(sensores.nivel == 4 && spawn)
 		{
-			hay_plan = true;
-			plan.push_front(actWHEREIS);
+			spawn = false;
+			ultimaAccion = actWHEREIS;
+			return actWHEREIS;
+		}
+		
+		if(spawn_2)
+		{
+			actual.fila = sensores.posF;
+			actual.columna = sensores.posC;
+			actual.orientacion = sensores.sentido;
+			spawn_2 = false;
+		}
+
+		switch (ultimaAccion)
+		{
+		case actFORWARD: // si mi utima accion fue ir para delante
+			switch (actual.orientacion)
+			{
+			case norte:
+				actual.fila--;
+				break;
+			case este:
+				actual.columna++;
+				break;
+			case sur:
+				actual.fila++;
+				break;
+			case oeste:
+				actual.columna--;
+				break;
+			case noroeste:
+				actual.fila--;
+				actual.columna--;
+				break;
+			case suroeste:
+				actual.fila++;
+				actual.columna--;
+				break;
+			case sureste:
+				actual.fila++;
+				actual.columna++;
+				break;
+			case noreste:
+				actual.fila--;
+				actual.columna++;
+				break;
+			}
+
+
+			break;
+
+		case actSEMITURN_L:
+			actual.orientacion = (actual.orientacion + 7) % 8;
+		break;
+		
+		case actSEMITURN_R:
+			actual.orientacion = (actual.orientacion + 1) % 8;
+		break;
+
+		case actTURN_R:					 // giramos a la derecha
+			actual.orientacion = (actual.orientacion + 2) % 8; // ya que trabajamos con 4 valores nada mas
+										// girar_izq = (rand()%2 == 0);
+			break;
+
+		case actTURN_L:					 // giramos a la izquierda
+			actual.orientacion = (actual.orientacion + 6) % 8; // ya que trabajamos con 4 valores nada mas y c++ con valores negativos caca,
+										// girar_izq = (rand()%2 == 0);// seria igual si le sumamos 3 ya que va a dar la vuelta al estar en modulo 4
+			break;
 		}
 	}
-		
-	actual.fila = sensores.posF;
-	actual.columna = sensores.posC;
-	actual.orientacion = sensores.sentido;
+	
 
 	cout << "Fila: " << actual.fila << endl;
 	cout << "Col : " << actual.columna << endl;
 	cout << "Ori : " << actual.orientacion << endl;
 
-	
-
 	//pintamos el mapa si estamos en el nivel 3 y 4
 	if(sensores.nivel == 3 || sensores.nivel == 4 )
 	{
-
-		if (!encontrado)
-		{
-			
-			for (int i = 0; i < sensores.terreno.size(); ++i)
-			{
-				switch (actual.orientacion)
-				{
-				case norte:
-					if (i == 0)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna;
-					}
-					else if (i == 1)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 2)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna;
-					}
-					else if (i == 3)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 4)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 5)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 6)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna;
-					}
-					else if (i == 7)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 8)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 9)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 10)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 11)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 12)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna;
-					}
-					else if (i == 13)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 14)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 15)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna + 3;
-					}
-
-					break;
-
-				case este:
-					if (i == 0)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna;
-					}
-					else if (i == 1)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 2)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 3)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 4)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 5)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 6)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 7)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 8)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 9)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 10)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 11)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 12)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 13)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 14)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 15)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna + 3;
-					}
-					break;
-
-				case sur:
-					if (i == 0)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna;
-					}
-					else if (i == 1)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 2)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna;
-					}
-					else if (i == 3)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 4)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 5)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 6)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna;
-					}
-					else if (i == 7)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 8)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 9)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna + 3;
-					}
-					else if (i == 10)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna + 2;
-					}
-					else if (i == 11)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna + 1;
-					}
-					else if (i == 12)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna;
-					}
-					else if (i == 13)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 14)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 15)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna - 3;
-					}
-					break;
-				case oeste:
-					if (i == 0)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna;
-					}
-					else if (i == 1)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 2)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 3)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna - 1;
-					}
-					else if (i == 4)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 5)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 6)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 7)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 8)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna - 2;
-					}
-					else if (i == 9)
-					{
-						fila_aux = actual.fila + 3;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 10)
-					{
-						fila_aux = actual.fila + 2;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 11)
-					{
-						fila_aux = actual.fila + 1;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 12)
-					{
-						fila_aux = actual.fila;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 13)
-					{
-						fila_aux = actual.fila - 1;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 14)
-					{
-						fila_aux = actual.fila - 2;
-						columna_aux = actual.columna - 3;
-					}
-					else if (i == 15)
-					{
-						fila_aux = actual.fila - 3;
-						columna_aux = actual.columna - 3;
-					}
-					break;
-				}
-
-				// cout<<"Posicion del triangulo "<<i<<" :"<<sensores.terreno[i]<<endl;
-				if (sensores.terreno[i] == 'X')
-				{
-					cout << "Encontradooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo " << fila_aux << columna_aux << endl;
-					
-					//cout<<"locoooooooooooo"<<destinos.front().fila<<destinos.front().columna<<endl;
-					//cout<<"locoooooooooooooooooooo"<<(*(destinos.begin()++)).fila<<(*(destinos.begin()++)).columna<<endl;
-					encontrado = true;
-				}
-			}
-		}
-
-
-		if(!hay_destinos)
+		if(!hay_destinos && sensores.nivel == 3)
 		{
 			//destinos.clear();
 			//variables auxiliares para los destinos
 			estado auxiliar;
 
 			
-				for(int i=3;i<mapaResultado.size()-3;i=i+3)
+				for(int i=3;i<mapaResultado.size()-4;i=i+3)
 				{
 					// de izquierda a derecha 
-					for(int j=3;j<mapaResultado.size()-3;j++)
+					for(int j=3;j<mapaResultado.size()-4;j++)
 					{
 						auxiliar.fila = i;
 						auxiliar.columna = j;
@@ -410,7 +121,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 					}
 					 i=i+3;
 					// de derecha a izquierda
-					for(int j=mapaResultado.size()-3;j>3;j--)
+					for(int j=mapaResultado.size()-4;j>3;j--)
 					{
 						auxiliar.fila = i;
 						auxiliar.columna = j;
@@ -418,22 +129,13 @@ Action ComportamientoJugador::think(Sensores sensores)
 					}
 				}
 			
+				
 			
-			cout<<"diosssssssssssssssssssssssssss"<<destinos.size()<<endl;
+			
 			hay_destinos = true;
 		}
 		
-		/*
-		// imprimimos los destinos a ver
-		int i = 0;
-		for (auto it = destinos.begin() ;it != destinos.end(); ++it) 
-		{
-    		cout<<"Destino :"<<i<<endl;
-			cout<<it->fila<<","<<it->columna;
-			cout<<endl;
-			i++;
-		}
-		*/
+		
 		// pintamos el mapa
 		int index = 1;
 
@@ -558,7 +260,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 			mapaResultado[actual.fila - 3][actual.columna] =sensores.terreno[15];
 			break;
 		}
-
+		cout<<"Si lees esto cristina ponde un 8 al menos que le he dedicado mas tiempo a esto que a m vida"<<endl;
 		//comprobamos si hemos visto alguna casilla de bikini o zapatillas
 		for(int i=0;i<sensores.terreno.size();i++)
 		{
@@ -566,9 +268,47 @@ Action ComportamientoJugador::think(Sensores sensores)
 				casilla_bikini = true;
 			if(sensores.terreno[i] == 'D')
 				casilla_zapatillas = true;
+			if(encontrada == 0 && i != 0 && sensores.nivel == 3)
+			{
+				if(sensores.terreno[i] == 'X')
+				{
+					//cout<<"HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+					for(int i=3;i<mapaResultado.size()-3;i++)
+					{
+						for(int j=3;j<mapaResultado.size()-3;j++)
+						{
+							if(mapaResultado[i][j] == 'X')
+							{
+								encontrada = 3;
+								estado auxiliar_;
+								auxiliar_.fila = i;
+								auxiliar_.columna = j;
+								destinos.pop_front();
+								destinos.push_front(auxiliar_);
+								hay_plan = false;
+								num_intentos = 0;
+								//cout<<"HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaa "<<destinos.front().fila<<destinos.front().columna<<" "<<i<<j<<endl;
+							}
+						}
+					}
+				}
+			}
+			
 		}
 
 		// empezamos con la planificacion
+
+		
+			
+		//comprobamos si ya hemps visto ese destino o no
+		while(mapaResultado[destinos.front().fila][destinos.front().columna] != '?' && sensores.nivel == 3)
+		{
+			if (mapaResultado[destinos.front().fila][destinos.front().columna] == 'X' && encontrada != 0)
+				break;
+
+			hay_plan = false;
+			destinos.pop_front();
+		}
 
 		// comprobamos si tenemos bikini o zapatillas
 		if(sensores.terreno[0] == 'K')
@@ -581,48 +321,26 @@ Action ComportamientoJugador::think(Sensores sensores)
 			tengo_zapatillas = true;
 			tengo_bikini = false;
 		}
-		else if(sensores.terreno[0] == 'X')
-		{	
-			for(int i = sensores.bateria;i < 3000 ;i=i+10)
-			{
-				if(hay_plan)
-					plan.push_front(actIDLE);
-				else
-				{
-					hay_plan = true;
-					plan.push_front(actIDLE);
-				}
-			}
-		}
-
-		//comprobamos si ya hemps visto ese destino o no
-		while(mapaResultado[destinos.front().fila][destinos.front().columna] != '?')
+		else if(sensores.terreno[0] == 'X' && encontrada == 3 && sensores.nivel == 3)
 		{
-			if(mapaResultado[destinos.front().fila][destinos.front().columna] != 'X')
-			{
-				hay_plan = false;
-				destinos.pop_front();
+			if(!hay_plan)
+				hay_plan = true;
 
-				if(encontrado)
-				{
-					estado axuiliar_;
-						axuiliar_.fila = fila_aux;
-						axuiliar_.columna = columna_aux;
-						destinos.push_front(axuiliar_);
+			plan.clear();
+
+			for(int i =sensores.bateria;i<3000;i+=10)
+			{
+				plan.push_back(actIDLE);
+				//cout<<"lolololollo"<<endl;
+				encontrada++;
+			}
 				
-					encontrado = false;
-				}
-				cout<<"locoooooooooooooooooooooooooooooooooooooo"<<fila_aux<<columna_aux<<endl;
-				cout<<"locoooooooooooooooooooooooooooooooooooooo"<<destinos.front().fila<<destinos.front().columna<<endl;
-
-			}
-			else // si el que es es un X nos salismo porque nos interesa ir
-			{
-				break;
-			}
+			
+			
+				
 		}
-
-		
+		else if(sensores.terreno[0] == 'X' && sensores.nivel == 3)
+			encontrada--;
 
 		// Capturo los destinos
 		cout << "Numero de destinos : " << destinos.size() << endl;
@@ -630,34 +348,35 @@ Action ComportamientoJugador::think(Sensores sensores)
 		//cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<primer_obstaculo<<endl;
 		// comprobamos si es la primera vez que encontramos agua o bosque para saltarlo para poder
 		//contabilizar el coste de atravesarlo 
-		if( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) )
+		if( ( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) ) && encontrada != 3 && encontrada < 8)
 		{
+			//cout<<"Aqui mamon!!!!!!!!!!!!!"<<endl;
 			hay_plan = false;
 			//destinos.pop_front();
 
 			primer_obstaculo = false;
 		}
 
-		//cout<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "<<destinos.size()<<endl;
-		if(!primer_obstaculo && !(mapaResultado[destinos.front().fila][destinos.front().columna] == 'A'|| mapaResultado[destinos.front().fila][destinos.front().columna] == 'B'))
+		//cout<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "<<destinos.size()<<" ooo "<<plan.size()<<" "<<encontrada<<endl;
+		if(!primer_obstaculo && !(mapaResultado[destinos.front().fila][destinos.front().columna] == 'A'|| mapaResultado[destinos.front().fila][destinos.front().columna] == 'B') )
 			primer_obstaculo = true;
 
 
-		cout<<"tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"<<hay_destinos<<endl;
+		//cout<<"tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt "<<destinos.front().fila<<destinos.front().columna<<endl;
 		//comprobamos si hemos llegado ya al destino de arriba de la cola o no es visitable
-		if( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front()))
+		if( ( (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna) || !esVisitable(destinos.front())) && (encontrada < 8) && sensores.nivel == 3)
 		{
 			hay_plan = false;
 			destinos.pop_front();
-
-			
+			//cout<<"*************************************************************************"<<endl;
 		}
-		//cout<<"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo "<< destinos.size() <<endl;
+		//cout<<"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo "<< casilla_zapatillas << tengo_zapatillas <<endl;
 		
 		//comprobamos si hay obstaculo delante o si es visitable
 		//cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<sensores.terreno[2]<<esVisitable(sensores.terreno[2])<<endl;
-		if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD)
+		if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD && encontrada != 3 && encontrada < 8 )
 		{	
+			//cout<<"Que no aquiiiiiiii!!!!!!!!!!!!!"<<endl;
 			hay_plan = false;
 			//destinos.pop_front();
 		}
@@ -668,59 +387,57 @@ Action ComportamientoJugador::think(Sensores sensores)
 			//destinos.pop_front();
 		}
 		*/
-	/*
-		if(encontrado && (actual.fila == destinos.front().fila && actual.columna == destinos.front().columna))
+
+		// si nos hemos chocado replanificamos
+		if(sensores.colision)
 		{
-			cout <<"toy tristeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"<<endl;
-			estado axuiliar_;
-					axuiliar_.fila = fila_aux;
-					axuiliar_.columna = columna_aux;
-					destinos.push_front(axuiliar_);
+			hay_plan = false;
+			spawn = true;
+			spawn_2 = true;
+		}
+			
+		
+		cout<<"************************************************************************* "<<sensores.colision<<endl;
+
+		if(sensores.superficie[2] != '_')
+			hay_plan = false;
+		
+		//si hemos llegado la primer objetivo
+		if((actual.fila == objetivos.front().fila && actual.columna == objetivos.front().columna) && sensores.nivel == 4)
+		{
+			hay_plan = false;
+			objetivos.pop_front();
 		}
 
-		cout<<"locoooooooooooooooooooooooooooo"<<destinos.front().fila<<destinos.front().columna<<endl;
-		*/
 		//comprobamos que haya destinos
-		if(destinos.size() > 0)
+		if(destinos.size() > 0 && sensores.nivel == 3)
 		{
 			actual.zapatillas = tengo_zapatillas;
 			actual.bikini = tengo_bikini;
 
 			if (!hay_plan)
 			{	
-
-
-				// Capturo los destinos
-				//cout << "sensores.num_destinos : " << destinos.size() << endl;
-				
-				
-
 				// calculamos que no se haya intentado calcular el plan masd e 7 veces por nodo
+				if((destinos.front().fila != ultimo.fila) && (destinos.front().columna != ultimo.columna) ) 
+					num_intentos = 0;
+
 				if(num_intentos == 0)
 					ultimo = destinos.front();
-				else if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD)
+				else if((!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD) && encontrada != 3)
 				{
 					destinos.pop_front();
 					num_intentos = 0;
 				}
-				else if(num_intentos > 7)
+				else if((num_intentos > 7) && encontrada != 3)
 				{
 					destinos.pop_front();
 					num_intentos = 0;
 				}
 
 				num_intentos++;
-				//destinos.splice(destinos.begin(),aux);
-				//cout<<"-------------------------------------------------------- "<<destinos.front().fila<<destinos.front().columna<<endl;
-				//cout<<"-------------------------------------------------------- "<<aux.front().fila<<aux.front().columna<<endl;
-				objetivos.clear();
-			
-				estado auxi;
-				auxi.fila = destinos.front().fila;
-				auxi.columna = destinos.front().columna;	
-				objetivos.push_back(auxi);
-
-				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+				plan.clear();
+				//cout<<"WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF "<<num_intentos<<endl;
+				hay_plan = pathFinding(sensores.nivel, actual, destinos, plan);
 			}
 			
 
@@ -729,14 +446,49 @@ Action ComportamientoJugador::think(Sensores sensores)
 				accion = plan.front();
 				plan.pop_front();
 			}
+			else if(hay_plan && plan.size() == 0)
+			{
+				destinos.pop_front();
+				hay_plan=false;
+			}
 		}
-		else
+		else if(sensores.nivel == 3)
 		{
-			cout<<"------------------------------------------------"<<endl;
 			hay_destinos = false;
 			primera_creacion_destinos = false;
 		}
-			
+		else	
+		{
+			actual.zapatillas = tengo_zapatillas;
+			actual.bikini = tengo_bikini;
+
+			cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
+			objetivos.clear();
+			for (int i = 0; i < sensores.num_destinos; i++)
+			{
+				estado aux;
+				aux.fila = sensores.destino[2 * i];
+				aux.columna = sensores.destino[2 * i + 1];
+				objetivos.push_back(aux);
+			}
+			// imprimimos los destinos a ver
+			int i = 0;
+			for (auto it : objetivos) 
+			{
+				cout<<"Destino :"<<i<<endl;
+				cout<<it.fila<<","<<it.columna;
+				cout<<endl;
+				i++;
+			}
+			if (!hay_plan)
+			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+
+			else if (hay_plan && plan.size() > 0)
+			{
+				accion = plan.front();
+				plan.pop_front();
+			}
+		}
 		
 
 	}
@@ -761,9 +513,6 @@ Action ComportamientoJugador::think(Sensores sensores)
 		{
 			accion = plan.front();
 			plan.pop_front();
-
-			if(destinos.size() < 1)
-				hay_destinos = false;
 		}
 	}
 
@@ -772,7 +521,7 @@ Action ComportamientoJugador::think(Sensores sensores)
 	
 
 	
-
+	ultimaAccion = accion;
 	return accion;
 }
 
@@ -782,7 +531,6 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 {
 	estado un_objetivo;
 	un_objetivo = objetivos.front();
-	
 
 	switch (level)
 	{
@@ -799,7 +547,7 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		// Incluir aqui la llamada al busqueda en anchura
 		// estado un_objetivo;
 		// un_objetivo = objetivos.front();
-		cout << "fila: " << destino.front().fila << " col:" << destino.front().columna << endl;
+		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
 		return pathFinding_Anchura(origen, un_objetivo, plan);
 		cout << "No implementado aun\n";
 		break;
@@ -807,20 +555,23 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		cout << "Optimo en coste\n";
 		// Incluir aqui la llamada al busqueda de costo uniforme/A*
 		cout << "fila: " << un_objetivo.fila << " col:" << un_objetivo.columna << endl;
-		return pathFinding_AStar(origen, destino , plan,&ChebyshevDistance);
+		return pathFinding_AStar(origen, destino, plan,&ChebyshevDistance);
 		cout << "No implementado aun\n";
 		break;
 	case 3:
 		cout << "Reto 1: Descubrir el mapa\n";
 		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 1
 		cout << "fila: " << destino.front().fila << " col:" << destino.front().columna << endl;
-		return pathFinding_AStar(origen, destino, plan,&ManhattanDistance);
-		cout << "No implementado aun\n";
+		aux.clear();
+		aux.push_back(destino.front());
+		return pathFinding_AStar(origen, aux, plan,&ManhattanDistance);
+		//cout << "No implementado aun\n";
 		break;
 	case 4:
 		cout << "Reto 2: Maximizar objetivos\n";
 		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 2
-		cout << "No implementado aun\n";
+		return pathFinding_AStar(origen, destino, plan,&ChebyshevDistance);
+		//cout << "No implementado aun\n";
 		break;
 	}
 	return false;
@@ -1139,9 +890,6 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 // secuencia de acciones en plan, una lista de acciones.
 bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <estado> &destino, list<Action> &plan,int (*ptr_func)(nodoA& uno, const estado& dos))
 {
-
-	
-
 	// Borro la lista
 	cout << "Calculando plan\n";
 	plan.clear();
@@ -1157,14 +905,15 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 		current.g = 0;
 		current.f = 0;
 		current.h = ptr_func(current, it);
-
-		Abiertos.push(current);
 	}
 	
 
+	Abiertos.push(current);
+
 	// coste asociado a la transicion por nodos
 	int costeF, costeTURN, costeSEMITURN;
-	while (!Abiertos.empty() and !(current.h == 0))
+
+	while (!Abiertos.empty() and (current.h != 0))
 	{
 
 		Abiertos.pop();
@@ -1227,11 +976,10 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 				costeSEMITURN = 1;
 				break;
 			}
-
-			std::unordered_map<estado, nodoA, MyHash<estado>>::iterator iterator; // creamos el iterator 
-			// Generar descendiente de girar a la derecha 90 grados
+			
 			for(auto it :destino)
 			{
+					// Generar descendiente de girar a la derecha 90 grados
 				nodoA hijoTurnR = current;
 				hijoTurnR.actual.st.orientacion = (hijoTurnR.actual.st.orientacion + 2) % 8;
 
@@ -1241,7 +989,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 				hijoTurnR.h = ptr_func(hijoTurnR, it);
 				hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
 
-				iterator = Cerrados.find(hijoTurnR.actual.st);
+				auto iterator = Cerrados.find(hijoTurnR.actual.st);
 
 				if ( iterator == Cerrados.end())
 					Abiertos.push(hijoTurnR);
@@ -1250,6 +998,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 					Cerrados.erase(iterator);
 					Abiertos.push(hijoTurnR);
 				}
+				
 
 				// Generar descendiente de girar a la derecha 45 grados
 				nodoA hijoSEMITurnR = current;
@@ -1269,7 +1018,6 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 					Cerrados.erase(iterator);
 					Abiertos.push(hijoSEMITurnR);
 				}
-				
 				
 
 				// Generar descendiente de girar a la izquierda 90 grados
@@ -1334,6 +1082,9 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 					
 				}
 			}
+
+
+			
 		}
 
 		// Tomo el siguiente valor de la Abiertos
@@ -1343,7 +1094,7 @@ bool ComportamientoJugador::pathFinding_AStar(const estado &origen, const list <
 
 	cout << "Terminada la busqueda. " << endl;
 
-	if (current.h == 0)
+	if (current.h==0)
 	{
 		cout << "Cargando el plan\n";
 		plan = current.actual.secuencia;
@@ -1484,10 +1235,9 @@ int ComportamientoJugador::interact(Action accion, int valor)
 // teniendo en cuenta si hemos visto anteriormente una casilla de bikini o de zapatillas
 bool ComportamientoJugador::esVisitable(estado & posicion)
 {
-	
 	if(mapaResultado[posicion.fila][posicion.columna] == 'M' || mapaResultado[posicion.fila][posicion.columna] == 'P')
 		return false;
-	
+
 	if(!casilla_bikini && mapaResultado[posicion.fila][posicion.columna] == 'A')
 		return false;
 

@@ -110,7 +110,9 @@ class ComportamientoJugador : public Comportamiento {
       tengo_bikini = false;
       tengo_zapatillas = false;
       primera_creacion_destinos = true;
-      encontrado = false;
+      spawn = true;
+      spawn_2 = true;
+      encontrada = 0;
       num_intentos = 0;
       fila_aux = 0;
       columna_aux = 0;
@@ -127,7 +129,9 @@ class ComportamientoJugador : public Comportamiento {
       tengo_bikini = false;
       tengo_zapatillas = false;
       primera_creacion_destinos = true;
-      encontrado = false;
+      spawn = true;
+      spawn_2 = true;
+      encontrada = 0;
       num_intentos = 0;
       fila_aux = 0;
       columna_aux = 0;
@@ -149,6 +153,8 @@ class ComportamientoJugador : public Comportamiento {
 
   private:
     // Declarar Variables de Estado
+    Action ultimaAccion;
+
     estado actual;
     list<estado> objetivos;
     list<Action> plan;
@@ -159,7 +165,8 @@ class ComportamientoJugador : public Comportamiento {
 
     int num_intentos, // numero de intentos por estado repetido
         fila_aux,
-        columna_aux;
+        columna_aux,
+        encontrada; // auxiliar para lidiar conn la casillaX 
 
 
     bool hay_plan, // comprobamos si hay plan establecido
@@ -170,7 +177,8 @@ class ComportamientoJugador : public Comportamiento {
         tengo_bikini,
         tengo_zapatillas,
         primera_creacion_destinos,
-        encontrado; // hemos encontrado una casilla X
+        spawn,
+        spawn_2;
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);
