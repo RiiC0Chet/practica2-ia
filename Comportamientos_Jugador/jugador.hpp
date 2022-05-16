@@ -116,6 +116,9 @@ class ComportamientoJugador : public Comportamiento {
       num_intentos = 0;
       fila_aux = 0;
       columna_aux = 0;
+      generar_objetivos=3;
+      replanificaciones =0;
+      num_replanificaciones = (mapaResultado.size()/2)+10;
       //bikini = false;
       //zapatillas = false;
     }
@@ -135,6 +138,9 @@ class ComportamientoJugador : public Comportamiento {
       num_intentos = 0;
       fila_aux = 0;
       columna_aux = 0;
+      generar_objetivos=3;
+      replanificaciones =0;
+      num_replanificaciones = (mapaResultado.size()/2)+10;
 
       //bikini = false;
       //zapatillas = false;
@@ -166,8 +172,11 @@ class ComportamientoJugador : public Comportamiento {
     int num_intentos, // numero de intentos por estado repetido
         fila_aux,
         columna_aux,
-        encontrada; // auxiliar para lidiar conn la casillaX 
+        encontrada, // auxiliar para lidiar conn la casillaX 
+        generar_objetivos, //nivel 4
+        replanificaciones;
 
+    int num_replanificaciones ;
 
     bool hay_plan, // comprobamos si hay plan establecido
          hay_destinos, // comprbamos si tenemos los detinos hechos

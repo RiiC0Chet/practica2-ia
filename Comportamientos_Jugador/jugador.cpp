@@ -35,6 +35,17 @@ Action ComportamientoJugador::think(Sensores sensores)
 			actual.columna = sensores.posC;
 			actual.orientacion = sensores.sentido;
 			spawn_2 = false;
+
+			cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
+			objetivos.clear();
+			for (int i = 0; i < sensores.num_destinos; i++)
+			{
+				estado aux;
+				aux.fila = sensores.destino[2 * i];
+				aux.columna = sensores.destino[2 * i + 1];
+				objetivos.push_back(aux);
+			}
+			generar_objetivos=3;
 		}
 
 		switch (ultimaAccion)
@@ -95,6 +106,20 @@ Action ComportamientoJugador::think(Sensores sensores)
 		}
 	}
 	
+
+	if(generar_objetivos == 0)
+	{
+		cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
+			objetivos.clear();
+			for (int i = 0; i < sensores.num_destinos; i++)
+			{
+				estado aux;
+				aux.fila = sensores.destino[2 * i];
+				aux.columna = sensores.destino[2 * i + 1];
+				objetivos.push_back(aux);
+			}
+			generar_objetivos=3;
+	}
 
 	cout << "Fila: " << actual.fila << endl;
 	cout << "Col : " << actual.columna << endl;
@@ -348,19 +373,47 @@ Action ComportamientoJugador::think(Sensores sensores)
 		//cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<primer_obstaculo<<endl;
 		// comprobamos si es la primera vez que encontramos agua o bosque para saltarlo para poder
 		//contabilizar el coste de atravesarlo 
-		if( ( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) ) && encontrada != 3 && encontrada < 8)
+		cout<<"ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd "<<replanificaciones<<" "<<num_replanificaciones<<endl;
+		if(replanificaciones <num_replanificaciones)
 		{
-			//cout<<"Aqui mamon!!!!!!!!!!!!!"<<endl;
-			hay_plan = false;
-			//destinos.pop_front();
+			if( ( ( (sensores.terreno[2] == 'A' && !tengo_bikini) || (sensores.terreno[2] == 'B' && !tengo_zapatillas) ) && (primer_obstaculo) ) && ((encontrada != 3 && encontrada < 8) || sensores.nivel == 4) && plan.front() == actFORWARD)
+			{
+				cout<<"Aqui mamon!!!!!!!!!!!!! "<<plan.size()<<endl;
+				
+					hay_plan = false;
+				
+					primer_obstaculo = false;
+				
+				replanificaciones++;
+					
+				//destinos.pop_front();
 
-			primer_obstaculo = false;
+				
+				/*
+				if(plan.front() == actFORWARD && sensores.nivel == 4 && plan.size() == 1 )
+				{
+					spawn = false;
+					spawn_2 = false;
+					plan.clear();
+					hay_plan = false;
+					return actFORWARD;
+				}
+				*/
+					
+			}
 		}
+		
 
 		//cout<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "<<destinos.size()<<" ooo "<<plan.size()<<" "<<encontrada<<endl;
 		if(!primer_obstaculo && !(mapaResultado[destinos.front().fila][destinos.front().columna] == 'A'|| mapaResultado[destinos.front().fila][destinos.front().columna] == 'B') )
 			primer_obstaculo = true;
 
+		if(replanificaciones <num_replanificaciones)
+		{
+			if(!primer_obstaculo && !(sensores.terreno[2] == 'A'|| sensores.terreno[2] == 'B') && plan.size() == 1)
+			primer_obstaculo = true;
+		}
+		
 
 		//cout<<"tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt "<<destinos.front().fila<<destinos.front().columna<<endl;
 		//comprobamos si hemos llegado ya al destino de arriba de la cola o no es visitable
@@ -374,12 +427,29 @@ Action ComportamientoJugador::think(Sensores sensores)
 		
 		//comprobamos si hay obstaculo delante o si es visitable
 		//cout<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii "<<sensores.terreno[2]<<esVisitable(sensores.terreno[2])<<endl;
-		if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD && encontrada != 3 && encontrada < 8 )
-		{	
-			//cout<<"Que no aquiiiiiiii!!!!!!!!!!!!!"<<endl;
-			hay_plan = false;
-			//destinos.pop_front();
+		if(sensores.nivel == 3)
+		{
+			if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD && encontrada != 3 && encontrada < 8 )
+			{	
+				//cout<<"Que no aquiiiiiiii!!!!!!!!!!!!!"<<endl;
+				hay_plan = false;
+				//destinos.pop_front();
+			}
 		}
+		else 
+		{
+			if(replanificaciones<num_replanificaciones)
+			{
+				if(!esVisitable(sensores.terreno[2]) && plan.front() == actFORWARD && encontrada != 3 && encontrada < 8 )
+				{	
+					//cout<<"Que no aquiiiiiiii!!!!!!!!!!!!!"<<endl;
+					hay_plan = false;
+					replanificaciones++;
+					//destinos.pop_front();
+				}
+			}
+		}
+		
 		/*
 		if(!esVisitable(sensores.terreno[6]))
 		{	
@@ -397,18 +467,53 @@ Action ComportamientoJugador::think(Sensores sensores)
 		}
 			
 		
-		cout<<"************************************************************************* "<<sensores.colision<<endl;
+		//cout<<"************************************************************************* "<<sensores.colision<<endl;
 
-		if(sensores.superficie[2] != '_')
+		if(sensores.superficie[2] != '_' && plan.front() == actFORWARD)
 			hay_plan = false;
 		
 		//si hemos llegado la primer objetivo
-		if((actual.fila == objetivos.front().fila && actual.columna == objetivos.front().columna) && sensores.nivel == 4)
+		if(sensores.nivel == 4)
 		{
-			hay_plan = false;
-			objetivos.pop_front();
-		}
+			for(auto it : objetivos)
+			{
+				if(actual.fila == it.fila && actual.columna == it.columna)
+				{
+					hay_plan = false;
+					//objetivos.pop_front();
+					generar_objetivos--;
+					cout<<"************************************************************************* "<<generar_objetivos<<endl;//objetivos.front().fila<<objetivos.front().columna<<endl;
+					
+					//int i=0;
+					//std::list<estado>::iterator it = objetivos.begin();
+					std::list<estado>::iterator ite = objetivos.begin();
+					for(ite;ite!=objetivos.end();ite++)
+					{
+						if(actual.fila == ite->fila && actual.columna == ite->columna)
+						{
+							
+							break;
+						}
+						
+						//it++;
+					}
+					objetivos.erase(ite);
+					// imprimimos los destinos a ver
+					
+					int i = 0;
+					for (auto it : objetivos) 
+					{
+						cout<<"Destino :"<<i<<endl;
+						cout<<it.fila<<","<<it.columna;
+						cout<<endl;
+						i++;
+					}
+					replanificaciones=0;
+					break;
 
+				}
+			}
+		}
 		//comprobamos que haya destinos
 		if(destinos.size() > 0 && sensores.nivel == 3)
 		{
@@ -461,25 +566,9 @@ Action ComportamientoJugador::think(Sensores sensores)
 		{
 			actual.zapatillas = tengo_zapatillas;
 			actual.bikini = tengo_bikini;
-
-			cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
-			objetivos.clear();
-			for (int i = 0; i < sensores.num_destinos; i++)
-			{
-				estado aux;
-				aux.fila = sensores.destino[2 * i];
-				aux.columna = sensores.destino[2 * i + 1];
-				objetivos.push_back(aux);
-			}
-			// imprimimos los destinos a ver
-			int i = 0;
-			for (auto it : objetivos) 
-			{
-				cout<<"Destino :"<<i<<endl;
-				cout<<it.fila<<","<<it.columna;
-				cout<<endl;
-				i++;
-			}
+			
+			cout<<"---------------------------------------------------------------------------"<<endl;
+			
 			if (!hay_plan)
 			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 
